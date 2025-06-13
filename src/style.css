@@ -1,0 +1,83 @@
+/* Definición de variables */
+:root {
+  --primary-col: #4b60a5;
+  --primary-col-glow: #4b60a5aa;
+
+  --bg-col: #0F0F0F;
+  --input-text-col: #FFFFFF;
+  --btn-list-col: #181818;
+  --entry-unfocus: #c41313;
+  --btn-list-col-hover: #272727;
+  --btn-list-col-hover-glow: #272727aa;
+  --btn-nav-col: #3E3E3E;
+  --btn-nav-col-hover: #0F0F0F;
+}
+
+* {
+  outline: none;
+  /* font-family: "Noto Color Emoji"; */
+}
+
+window {
+  background-color: var(--bg-col);
+  border-radius: 10px;
+  /* padding: 12px; */
+  padding: 12px 0px 0px 0px;
+}
+
+label.title {
+  color: var(--primary-col);
+  margin-bottom: -5px;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+entry {
+  background-color: var(--btn-list-col);
+  color: #fff;
+  border-radius: 10px 0 0 10px;
+  padding: 0 15px;
+}
+
+.btn_search {
+  padding: 0 10px;
+  background: var(--primary-col);
+  color: var(--input-text-col);
+  font-weight: 700;
+  color: white;
+  border-radius: 0 10px 10px 0;
+}
+
+.category_nav button {
+  background: var(--btn-list-col);
+  border: none;
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.category_nav button:hover, .category_nav button:focus {
+  background: var(--btn-list-col-hover);
+  box-shadow: 0 3px 7px 0 var(--btn-list-col-hover-glow), 0 1px 2px -1px var(--btn-list-col-hover-glow);
+}
+.category_nav button.active, .category_nav button.active:focus {
+  background: var(--primary-col);
+}
+.category_nav button.active:hover, .category_nav button.active:focus {
+  box-shadow: 0 3px 7px 0 var(--primary-col-glow), 0 1px 2px -1px var(--primary-col-glow);
+}
+
+.emoji-item {
+
+  font-family: "Noto Color Emoji";
+  /* background-color: var(--btn-list-col); */
+  font-size: 1.5rem;
+  border-radius: 10px;
+  border: 2px solid var(--btn-list-col);
+}
+
+.emoji-item:hover {
+  background-color: var(--btn-list-col);
+}
+.emoji-item:focus {
+  background-color: var(--btn-list-col-hover);
+}

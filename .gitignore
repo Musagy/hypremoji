@@ -1,0 +1,30 @@
+# Archivos de Rust y Cargo
+/target/
+**/*.rs.bk
+**/*.swp
+*.iml
+.DS_Store
+Cargo.lock
+
+# Archivos de compilación de GTK y caché
+/gtk-rs-cache/
+/glib-build-tools/
+/cache/
+
+# Archivos específicos de entornos de desarrollo (IDE/editor)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# Archivos del sistema operativo
+Thumbs.db
+.DS_Store
+
+# Archivos de registro y temporales
+*.log
+*.tmp
+temp/
