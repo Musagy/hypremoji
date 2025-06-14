@@ -1,9 +1,10 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
 
 use crate::category::Category;
+use crate::utils::path_utils::get_assets_base_path;
 use gtk::{
-    prelude::{BoxExt, Cast, FlowBoxChildExt, WidgetExt},
-    Box, FlowBox, FlowBoxChild, Label, ScrolledWindow,
+    prelude::{BoxExt, Cast, FlowBoxChildExt, GtkWindowExt, WidgetExt},
+    ApplicationWindow, Box, FlowBox, FlowBoxChild, Label, ScrolledWindow,
 };
 
 pub fn refresh_flowbox(flowbox: &FlowBox, emoji_list: Vec<String>) {
@@ -32,6 +33,7 @@ pub fn create_emoji_grid_section(
     vertical_margin: i32,
     initial_category: Rc<RefCell<Category>>,
     all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>>,
+    window_ref: Rc<RefCell<ApplicationWindow>>,
 ) -> (ScrolledWindow, Rc<RefCell<FlowBox>>) {
     let gap = 4;
     let emoji_flowbox = FlowBox::new();
@@ -44,11 +46,38 @@ pub fn create_emoji_grid_section(
 
     emoji_flowbox.set_activate_on_single_click(true);
 
-    emoji_flowbox.connect_child_activated(|_, flowbox_child| {
+    let window_ref_clone = window_ref.clone();
+    emoji_flowbox.connect_child_activated(move |_, flowbox_child| {
         if let Some(child_widget) = flowbox_child.child() {
             if let Ok(label) = child_widget.downcast::<Label>() {
                 let emoji = label.text();
                 println!("Emoji seleccionado: {}", emoji);
+
+                let script_path_result = get_assets_base_path()
+                    .map(|p| p.join("insert_emoji.sh"));
+
+                match script_path_result {
+                    Ok(script_path) => {
+                        let command_str = format!("{} \"{}\"", script_path.display(), emoji);
+
+                        let result = Command::new("bash").arg("-c").arg(&command_str).spawn();
+
+                        match result {
+                            Ok(_) => {
+                                println!("Comando bash iniciado en segundo plano: {}", command_str);
+                            }
+                            Err(e) => {
+                                eprintln!("Fallo al intentar iniciar el comando bash: {}", e);
+                                eprintln!("Asegúrate de que el script '{}' tenga permisos de ejecución: chmod +x {}", script_path.display(), script_path.display());
+                            }
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("Error al obtener la ruta base de assets: {}", e);
+                    }
+                }
+                
+                window_ref_clone.borrow().close(); // Cierra la ventana al seleccionar un emoji
             }
         }
     });

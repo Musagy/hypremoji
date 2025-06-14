@@ -5,6 +5,8 @@ use serde::Deserialize;
 use crate::category::Category;
 use indexmap::IndexMap;
 
+use super::get_assets_base_path;
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct EmojiDetail {
     pub emoji: String,
@@ -24,13 +26,13 @@ struct EmojisJsonRoot {
     pub emojis: IndexMap<String, DynamicSubclassesWrapper>,
 }
 
-pub const JSON_PATH: &str = "assets/categories.min.json";
+// pub const JSON_PATH: &str = "assets/categories.min.json";
 
 pub fn load_emoji_for_category(
 ) -> Result<HashMap<Category, Vec<String>>, Box<dyn std::error::Error>> {
-    let raw = fs::read_to_string(JSON_PATH).map_err(|e| Box::new(e))?;
-    // println!("Cargando emojis desde: {}", JSON_PATH);
-    // println!("Contenido del JSON: {}", raw);
+    let assets_base_path = get_assets_base_path()?;
+    let json_path = assets_base_path.join("categories.min.json");
+    let raw = fs::read_to_string(&json_path).map_err(|e| Box::new(e))?;
 
     let root: EmojisJsonRoot = serde_json::from_str(&raw).map_err(|e| Box::new(e))?;
     // println!("Emojis root loaded successfully: {:?}", root);

@@ -35,6 +35,8 @@ fn build_ui(app: &Application) {
         .default_height(340)
         .build();
 
+    let window_ref = Rc::new(RefCell::new(window.clone()));
+
     let side_margin = 12;
     let vertical_margin = 10;
 
@@ -68,6 +70,7 @@ fn build_ui(app: &Application) {
         vertical_margin,
         selected_category.clone(),
         all_emojis_by_category.clone(),
+        window_ref.clone(),
     );
 
     let category_nav = create_category_nav(
