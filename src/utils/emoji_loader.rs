@@ -5,13 +5,13 @@ use serde::Deserialize;
 use crate::category::Category;
 use indexmap::IndexMap;
 
-use super::get_assets_base_path;
+use super::{get_assets_base_path, load_recents};
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct EmojiDetail {
     pub emoji: String,
-    pub name: String,
-    pub code: Vec<String>,
+    // pub name: String,
+    // pub code: Vec<String>,
 }
 
 // Esta struct mapea el objeto que contiene las subclases dinámicas
@@ -40,7 +40,8 @@ pub fn load_emoji_for_category(
     let mut categorized_emojis: HashMap<Category, Vec<String>> = HashMap::new();
 
     // Inicializar la categoría Recientes vacía
-    categorized_emojis.insert(Category::Recientes, Vec::new());
+    let recent_data = load_recents()?;
+    categorized_emojis.insert(Category::Recents, recent_data.emojis.into());
 
     // Iterar sobre las categorías principales del JSON
     for (json_category_name, dynamic_subclasses_wrapper) in root.emojis {

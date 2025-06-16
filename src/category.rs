@@ -2,7 +2,7 @@
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Category {
     // 'pub' para que sea accesible desde otros módulos
-    Recientes,
+    Recents,
     SmileysAndEmotion,
     AnimalsAndNature,
     FoodAndDrink,
@@ -17,7 +17,7 @@ impl Category {
     pub fn icon(&self) -> &str {
         // 'pub' para que sea accesible desde otros módulos
         match self {
-            Category::Recientes => "⏳",
+            Category::Recents => "⏳",
             Category::SmileysAndEmotion => "😀",
             Category::AnimalsAndNature => "🐶",
             Category::FoodAndDrink => "🍎",
@@ -32,7 +32,7 @@ impl Category {
     pub fn name(&self) -> &str {
         // 'pub' para que sea accesible desde otros módulos
         match self {
-            Category::Recientes => "Recientes",
+            Category::Recents => "Recents",
             Category::SmileysAndEmotion => "Smileys & Emotion",
             Category::AnimalsAndNature => "Animals & Nature",
             Category::FoodAndDrink => "Food & Drink",

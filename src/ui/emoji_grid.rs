@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
 
-use crate::category::Category;
+use crate::{category::Category, utils::add_emoji_to_recents};
 use crate::utils::path_utils::get_assets_base_path;
 use gtk::{
     prelude::{BoxExt, Cast, FlowBoxChildExt, GtkWindowExt, WidgetExt},
@@ -59,6 +59,11 @@ pub fn create_emoji_grid_section(
                 match script_path_result {
                     Ok(script_path) => {
                         let command_str = format!("{} \"{}\"", script_path.display(), emoji);
+
+                        add_emoji_to_recents(emoji.to_string())
+                        .unwrap_or_else(|e| {
+                            eprintln!("Error al añadir emoji a recientes: {}", e);
+                        });
 
                         let result = Command::new("bash").arg("-c").arg(&command_str).spawn();
 

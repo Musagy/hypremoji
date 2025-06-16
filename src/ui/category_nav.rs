@@ -25,7 +25,7 @@ pub fn create_category_nav(
 
     // Lista de categorías
     let categories = vec![
-        Category::Recientes,
+        Category::Recents,
         Category::SmileysAndEmotion,
         Category::AnimalsAndNature,
         Category::FoodAndDrink,

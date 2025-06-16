@@ -22,7 +22,11 @@ fn main() {
         .application_id("dev.musagy.HyprEmoji")
         .build();
 
-    app.connect_startup(|_| load_css());
+    app.connect_startup(|_| {
+        if let Err(e) = load_css() {
+            eprintln!("Error al cargar el CSS: {}", e);
+        }
+    });
     app.connect_activate(build_ui);
     app.run();
 }
