@@ -73,20 +73,20 @@ fn build_ui(app: &Application) {
     let selected_category = Rc::new(RefCell::new(Category::SmileysAndEmotion));
 
     // Crear cuadrícula de emojis
-    let (emoji_grid_widget, emoji_flowbox_ref) = create_emoji_grid_section(
-        side_margin,
-        vertical_margin,
-        selected_category.clone(),
-        all_emojis_by_category.clone(),
-        window_ref.clone(),
-    );
+    let (emoji_grid_widget, display_emojis_by_category_fn, _display_arbitrary_emojis_fn) =
+        create_emoji_grid_section(
+            side_margin,
+            vertical_margin,
+            selected_category.clone(),
+            all_emojis_by_category.clone(),
+            window_ref.clone(),
+        );
 
     let category_nav = create_category_nav(
         side_margin,
         vertical_margin,
         selected_category.clone(),
-        all_emojis_by_category.clone(),
-        emoji_flowbox_ref,
+        display_emojis_by_category_fn.clone(),
     );
     main_box.append(&category_nav);
     main_box.append(&emoji_grid_widget);

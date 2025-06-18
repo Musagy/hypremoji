@@ -4,8 +4,9 @@ use crate::{category::Category, utils::add_emoji_to_recents};
 use crate::utils::path_utils::get_assets_base_path;
 use gtk::{
     prelude::{BoxExt, Cast, FlowBoxChildExt, GtkWindowExt, WidgetExt},
-    ApplicationWindow, Box, FlowBox, FlowBoxChild, Label, ScrolledWindow,
+    ApplicationWindow, Box as BoxGtk, FlowBox, FlowBoxChild, Label, ScrolledWindow,
 };
+
 
 pub fn refresh_flowbox(flowbox: &FlowBox, emoji_list: Vec<String>) {
     // Limpieza
@@ -28,13 +29,41 @@ pub fn refresh_flowbox(flowbox: &FlowBox, emoji_list: Vec<String>) {
     }
 }
 
+fn internal_refresh_emoji_display(
+    flowbox_rc: &Rc<RefCell<FlowBox>>,
+    all_emojis_by_category: &Rc<RefCell<HashMap<Category, Vec<String>>>>,
+    category_to_show: &Category,
+) {
+    let current_flowbox = flowbox_rc.borrow();
+    let all_emojis = all_emojis_by_category.borrow();
+
+    let emojis_to_show = all_emojis
+        .get(category_to_show)
+        .map_or(Vec::new(), |vec| vec.clone());
+
+    refresh_flowbox(&current_flowbox, emojis_to_show);
+}
+
+fn internal_display_arbitrary_emojis(
+    flowbox_rc: &Rc<RefCell<FlowBox>>,
+    emojis_to_display: Vec<String>,
+) {
+    let current_flowbox = flowbox_rc.borrow();
+    refresh_flowbox(&current_flowbox, emojis_to_display);
+}
+
 pub fn create_emoji_grid_section(
     side_margin: i32,
     vertical_margin: i32,
     initial_category: Rc<RefCell<Category>>,
     all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>>,
     window_ref: Rc<RefCell<ApplicationWindow>>,
-) -> (ScrolledWindow, Rc<RefCell<FlowBox>>) {
+) -> (
+    ScrolledWindow,
+    // CAMBIO CLAVE: Los closures ahora son Rc<RefCell<Box<dyn Fn(...)>>>
+    Rc<RefCell<Box<dyn Fn(Category) + 'static>>>, 
+    Rc<RefCell<Box<dyn Fn(Vec<String>) + 'static>>> 
+) {
     let gap = 4;
     let emoji_flowbox = FlowBox::new();
     emoji_flowbox.set_selection_mode(gtk::SelectionMode::None); // No permite selección de múltiples emojis
@@ -46,8 +75,10 @@ pub fn create_emoji_grid_section(
 
     emoji_flowbox.set_activate_on_single_click(true);
 
+    let emoji_flowbox_rc = Rc::new(RefCell::new(emoji_flowbox));
+
     let window_ref_clone = window_ref.clone();
-    emoji_flowbox.connect_child_activated(move |_, flowbox_child| {
+    emoji_flowbox_rc.borrow().connect_child_activated(move |_, flowbox_child| {
         if let Some(child_widget) = flowbox_child.child() {
             if let Ok(label) = child_widget.downcast::<Label>() {
                 let emoji = label.text();
@@ -87,17 +118,35 @@ pub fn create_emoji_grid_section(
         }
     });
 
+    let all_emojis_by_category_clone_for_set_category_fn = all_emojis_by_category.clone();
+    let emoji_flowbox_rc_clone_for_set_category_fn = emoji_flowbox_rc.clone();
+
+    // CAMBIO CLAVE: Closure para cambiar la categoría de la FlowBox
+    let set_category_emojis_display = Rc::new(RefCell::new(Box::new(move |category: Category| {
+        println!("Cambiando a la categoría: {}", category.name());
+        internal_refresh_emoji_display(
+            &emoji_flowbox_rc_clone_for_set_category_fn,
+            &all_emojis_by_category_clone_for_set_category_fn,
+            &category,
+        );
+    }) as Box<dyn Fn(Category) + 'static>)); 
+
+    let emoji_flowbox_rc_clone_for_set_emojis_fn = emoji_flowbox_rc.clone();
+
+    // CAMBIO CLAVE: Closure para mostrar una lista arbitraria de emojis
+    let set_custom_emojis_display = Rc::new(RefCell::new(Box::new(move |emojis: Vec<String>| {
+        println!("Mostrando lista arbitraria de emojis ({} items)", emojis.len());
+        internal_display_arbitrary_emojis(
+            &emoji_flowbox_rc_clone_for_set_emojis_fn,
+            emojis,
+        );
+    }) as Box<dyn Fn(Vec<String>) + 'static>)); 
+
     let initial_category_name = initial_category.borrow().clone();
-    let emojis_map_borrow = all_emojis_by_category.borrow();
+    set_category_emojis_display.borrow()(initial_category_name);
 
-    let emojis_to_show = emojis_map_borrow
-        .get(&initial_category_name)
-        .map_or(Vec::new(), |vec| vec.clone());
-
-    refresh_flowbox(&emoji_flowbox, emojis_to_show);
-
-    let content_container = Box::new(gtk::Orientation::Vertical, 0); // Un Box vertical, sin espaciado interno propio
-    content_container.append(&emoji_flowbox);
+    let content_container = BoxGtk::new(gtk::Orientation::Vertical, 0); // Un Box vertical, sin espaciado interno propio
+    content_container.append(&emoji_flowbox_rc.borrow().clone());
 
     let margin = 6;
     content_container.set_margin_start(side_margin);
@@ -116,5 +165,5 @@ pub fn create_emoji_grid_section(
     scrolled_window.set_hexpand(true);
     scrolled_window.set_margin_end(side_margin / 2); // Margen derecho fuera del scroll
 
-    (scrolled_window, Rc::new(RefCell::new(emoji_flowbox)))
+    (scrolled_window, set_category_emojis_display, set_custom_emojis_display)
 }

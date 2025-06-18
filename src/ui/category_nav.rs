@@ -1,19 +1,16 @@
 use gtk::{
     prelude::{ButtonExt, Cast, GridExt, ListModelExt, WidgetExt},
-    Button, FlowBox, Grid,
+    Button, Grid,
 };
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::category::Category;
-
-use super::refresh_flowbox;
 
 pub fn create_category_nav(
     side_margin: i32,
     vertical_margin: i32,
     selected_category: Rc<RefCell<Category>>,
-    all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>>,
-    emoji_flowbox_ref: Rc<RefCell<FlowBox>>,
+    display_emojis_by_category_fn: Rc<RefCell<Box<dyn Fn(Category) + 'static>>>,
 ) -> Grid {
     let category_nav = Grid::new();
     category_nav.add_css_class("category_nav");
@@ -41,8 +38,12 @@ pub fn create_category_nav(
         let selected_category_clone = selected_category.clone();
         let current_cat_clone = cat.clone(); // Clonamos la categoría actual para el closure
         let category_nav_clone_for_button = category_nav.clone();
-        let all_emojis_by_category_clone = all_emojis_by_category.clone();
-        let emoji_flowbox_ref_clone = emoji_flowbox_ref.clone();
+
+        let display_emojis_by_category_fn_clone = display_emojis_by_category_fn.clone();
+        // let display_fn = display_emojis_by_category_fn.clone();
+        // a eliminar, ya que no se usa en este contexto
+        // let all_emojis_by_category_clone = all_emojis_by_category.clone();
+        // let emoji_flowbox_ref_clone = emoji_flowbox_ref.clone();
 
         let btn = Button::with_label(cat.icon());
         btn.set_tooltip_text(Some(cat.name()));
@@ -70,14 +71,7 @@ pub fn create_category_nav(
                 }
             }
 
-            let current_flowbox = emoji_flowbox_ref_clone.borrow();
-            let all_emojis = all_emojis_by_category_clone.borrow();
-
-            let emojis_to_show = all_emojis
-                .get(&current_cat_clone)
-                .map_or(Vec::new(), |vec| vec.clone());
-
-            refresh_flowbox(&current_flowbox, emojis_to_show);
+            display_emojis_by_category_fn_clone.borrow()(current_cat_clone.clone());
         });
 
         category_nav.attach(&btn, index as i32, 0, 1, 1);

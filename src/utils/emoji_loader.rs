@@ -31,8 +31,6 @@ struct EmojisListJsonRoot {
     pub emojis: Vec<EmojiDetail>,
 }
 
-// pub const JSON_PATH: &str = "assets/categories.min.json";
-
 pub fn load_emoji_for_category(
 ) -> Result<HashMap<Category, Vec<String>>, Box<dyn std::error::Error>> {
     let assets_base_path = get_assets_base_path()?;
@@ -84,6 +82,8 @@ pub fn load_emoji_for_category(
 
 const MIN_SEARCH_LENGTH_RETURN: usize = 20;
 
+// TODO: agregar un limite de rebusques para no hacer un bucle infinito
+// (Caso mas común: un pendejo que spamme un string largo y no exista un emoji con ese nombre, bucle rebuscando si encuentra algo con menos caracteres)
 pub fn find_emoji_by_name(
     name: &str, // ) -> Result<Vec<EmojiDetail>, Box<dyn std::error::Error>> {
 ) -> Result<Vec<EmojiDetail>, Box<dyn std::error::Error>> {
