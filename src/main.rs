@@ -4,6 +4,7 @@ use gtk::{ApplicationWindow, Box};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use utils::find_emoji_by_name;
 
 mod category;
 mod load_styles;
@@ -25,6 +26,9 @@ fn main() {
     app.connect_startup(|_| {
         if let Err(e) = load_css() {
             eprintln!("Error al cargar el CSS: {}", e);
+        }
+        if let Err(w) = find_emoji_by_name("ship") {
+            eprintln!("Error al buscar emojis: {}", w);
         }
     });
     app.connect_activate(build_ui);
