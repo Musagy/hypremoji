@@ -60,20 +60,12 @@ fn build_ui(app: &Application) {
             }
         }
     };
-    all_emojis_by_category
-        .borrow()
-        .get(&Category::SmileysAndEmotion)
-        .expect("No se encontraron emojis en la categoría Smileys & Emotion");
-
-    // Crear sección de búsqueda
-    let search_section = create_search_section(side_margin);
-    main_box.append(&search_section);
 
     // Crear barra de navegación de categorías
     let selected_category = Rc::new(RefCell::new(Category::SmileysAndEmotion));
 
     // Crear cuadrícula de emojis
-    let (emoji_grid_widget, display_emojis_by_category_fn, _display_arbitrary_emojis_fn) =
+    let (emoji_grid_widget, display_emojis_by_category_fn, display_arbitrary_emojis_fn) =
         create_emoji_grid_section(
             side_margin,
             vertical_margin,
@@ -82,12 +74,23 @@ fn build_ui(app: &Application) {
             window_ref.clone(),
         );
 
+    // Crear sección de búsqueda
+    let search_section = create_search_section(
+        side_margin,
+        display_arbitrary_emojis_fn.clone(),
+        display_emojis_by_category_fn.clone(),
+    );
+
+    // Crear navegación de categorías
     let category_nav = create_category_nav(
         side_margin,
         vertical_margin,
         selected_category.clone(),
         display_emojis_by_category_fn.clone(),
     );
+
+    // Poniendo componentes en la caja principal
+    main_box.append(&search_section);
     main_box.append(&category_nav);
     main_box.append(&emoji_grid_widget);
 

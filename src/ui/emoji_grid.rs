@@ -60,7 +60,6 @@ pub fn create_emoji_grid_section(
     window_ref: Rc<RefCell<ApplicationWindow>>,
 ) -> (
     ScrolledWindow,
-    // CAMBIO CLAVE: Los closures ahora son Rc<RefCell<Box<dyn Fn(...)>>>
     Rc<RefCell<Box<dyn Fn(Category) + 'static>>>, 
     Rc<RefCell<Box<dyn Fn(Vec<String>) + 'static>>> 
 ) {

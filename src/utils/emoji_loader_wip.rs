@@ -3,7 +3,7 @@ use std::{collections::HashMap, fs};
 use serde::Deserialize;
 
 use crate::category::Category;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 
 use super::{get_assets_base_path, load_recents};
 
@@ -81,8 +81,9 @@ pub fn load_emoji_for_category(
 }
 
 const MIN_SEARCH_LENGTH_RETURN: usize = 20;
-const MAX_SEARCH_ITERATIONS: usize = 5;
 
+// TODO: agregar un limite de rebusques para no hacer un bucle infinito
+// (Caso mas común: un pendejo que spamme un string largo y no exista un emoji con ese nombre, bucle rebuscando si encuentra algo con menos caracteres)
 pub fn find_emoji_by_name(name: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     println!("Searching for emoji by name: {}", name);
 
@@ -92,50 +93,39 @@ pub fn find_emoji_by_name(name: &str) -> Result<Vec<String>, Box<dyn std::error:
 
     let root: EmojisListJsonRoot = serde_json::from_str(&raw).map_err(|e| Box::new(e))?;
 
-    let mut found: IndexSet<String> = IndexSet::new();
-    let mut iterations = 0; // Para limitar la búsqueda difusa
+    let mut found = IndexSet::new();
     let mut query = name.to_lowercase();
 
-    while found.len() < MIN_SEARCH_LENGTH_RETURN && iterations < MAX_SEARCH_ITERATIONS {
+    while found.len() < MIN_SEARCH_LENGTH_RETURN && !query.is_empty() {
         for emoji in &root.emojis {
-            // let emoji_name = emoji.name.to_lowercase();
-            if emoji.name.to_lowercase().contains(&query) {
+            let emoji_name = emoji.name.to_lowercase();
+            if emoji_name.contains(&query) {
                 found.insert(emoji.emoji.clone());
+                if found.len() >= MIN_SEARCH_LENGTH_RETURN {
+                    break;
+                }
             }
         }
-
-        // append_matching_emojis(&root.emojis, &mut found, name);
-        // if found.len() >= MIN_SEARCH_LENGTH_RETURN || name.is_empty() {
-        //     break;
-        // } else {
-        //     if name.len() > 1 {
-        //         name = &name[..name.len() - 1];
-        //     } else {
-        //         println!("No more characters to remove from name: {}", name);
-        //         break;
-        //     }
-        // }
-
         query.pop(); // acorta la búsqueda si aún no hay suficientes resultados
-        iterations += 1; // Incrementa el contador de iteraciones
     }
 
-    let result = found.into_iter().collect();
-    // println!("lista de emojis encontrados: {:?}", result);
+    let result = found.into_iter().collect::<Vec<_>>();
+    println!("lista de emojis encontrados: {:?}", result);
 
     Ok(result)
 }
 
-// fn append_matching_emojis(
-//     all_emojis: &[EmojiDetail],
-//     found_emojis: &mut Vec<EmojiDetail>,
-//     name: &str,
-// ) {
-//     for emoji_detail in all_emojis.iter() {
-//         let emoji_name = emoji_detail.name.to_lowercase();
-//         let is_contains = emoji_name.contains(&name.to_lowercase());
-//         if is_contains {
-//             found_emojis.push(emoji_detail.clone());
-//         }
-//     }
-// }
+fn append_matching_emojis(
+    all_emojis: &[EmojiDetail],
+    found_emojis: &mut Vec<EmojiDetail>,
+    name: &str,
+) {
+    for emoji_detail in all_emojis.iter() {
+        let emoji_name = emoji_detail.name.to_lowercase();
+        let is_contains = emoji_name.contains(&name.to_lowercase());
+
+        if is_contains {
+            found_emojis.push(emoji_detail.clone());
+        }
+    }
+}
