@@ -79,6 +79,7 @@ fn build_ui(app: &Application) {
         side_margin,
         display_arbitrary_emojis_fn.clone(),
         display_emojis_by_category_fn.clone(),
+        selected_category.clone(),
     );
 
     // Crear navegación de categorías

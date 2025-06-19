@@ -40,11 +40,6 @@ pub fn create_category_nav(
         let category_nav_clone_for_button = category_nav.clone();
 
         let display_emojis_by_category_fn_clone = display_emojis_by_category_fn.clone();
-        // let display_fn = display_emojis_by_category_fn.clone();
-        // a eliminar, ya que no se usa en este contexto
-        // let all_emojis_by_category_clone = all_emojis_by_category.clone();
-        // let emoji_flowbox_ref_clone = emoji_flowbox_ref.clone();
-
         let btn = Button::with_label(cat.icon());
         btn.set_tooltip_text(Some(cat.name()));
         btn.add_css_class("category-button"); // Aplica clase CSS

@@ -8,7 +8,7 @@
   --btn-list-col: #181818;
   --entry-unfocus: #c41313;
   --btn-list-col-hover: #272727;
-  --btn-list-col-hover-glow: #272727aa;
+  --btn-list-col-hover-glow: #27272777;
   --btn-nav-col: #3E3E3E;
   --btn-nav-col-hover: #0F0F0F;
 }
@@ -35,18 +35,38 @@ label.title {
 entry {
   background-color: var(--btn-list-col);
   color: #fff;
-  border-radius: 10px 0 0 10px;
+  /* border-radius: 10px 0 0 10px; */
+  border-radius: 10px;
   padding: 0 15px;
 }
 
-.btn_search {
+entry.active {
+  /* background-color: var(--primary-col); */
+  font-weight: 500;
+  box-shadow: 0 3px 7px 0 var(--primary-col-glow), 0 1px 2px -1px var(--primary-col-glow);
+  border: 1px solid var(--primary-col);
+
+  box-shadow: inset 0 0 0 1px var(--primary-col-glow);
+}
+entry.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 10px var(--primary-col-glow);
+}
+
+/* .btn_search {
   padding: 0 10px;
   background: var(--primary-col);
   color: var(--input-text-col);
   font-weight: 700;
   color: white;
   border-radius: 0 10px 10px 0;
-}
+} */
 
 .category_nav button {
   background: var(--btn-list-col);
@@ -62,7 +82,7 @@ entry {
 .category_nav button.active, .category_nav button.active:focus {
   background: var(--primary-col);
 }
-.category_nav button.active:hover, .category_nav button.active:focus {
+.category_nav button.active, .category_nav button.active:hover, .category_nav button.active:focus {
   box-shadow: 0 3px 7px 0 var(--primary-col-glow), 0 1px 2px -1px var(--primary-col-glow);
 }
 
