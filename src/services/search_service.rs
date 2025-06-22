@@ -1,11 +1,14 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::time::Duration;
 
-use gtk::glib::timeout_add_seconds_local;
+use gtk::glib::timeout_add_local;
 use gtk::glib::ControlFlow;
 use gtk::glib::SourceId;
 
 use crate::utils::find_emoji_by_name;
+use crate::utils::load_all_emojis;
+use crate::utils::EmojisListJsonRoot;
 
 pub struct SearchService {
     pub cancel_pending_search_fn: Rc<Box<dyn Fn() + 'static>>,
@@ -25,6 +28,17 @@ pub fn set_search_service(
             println!("Pending search cancelled.");
         }
     }));
+    let all_emoji_list = {
+        match load_all_emojis() {
+            Ok(emojis) => emojis,
+            Err(e) => {
+                eprintln!("Error loading emojis: {}", e);
+                // Return an empty structure or handle the error as needed
+                EmojisListJsonRoot { emojis: Vec::new() }
+            }
+        }
+    };
+    let all_emoji_list_clone = Rc::new(RefCell::new(all_emoji_list));
 
     let initiate_debounced_search_fn: Rc<Box<dyn Fn(String) + 'static>> = Rc::new(Box::new({
         let search_timeout_id_global_clone_for_debounce = search_timeout_id_global.clone();
@@ -44,13 +58,18 @@ pub fn set_search_service(
             let search_timeout_id_global_for_timeout =
                 search_timeout_id_global_clone_for_debounce.clone();
 
-            let id = timeout_add_seconds_local(1, move || {
+            let all_emoji_list_for_timeout = all_emoji_list_clone.clone();
+
+            let id = timeout_add_local(Duration::from_millis(300), move || {
                 println!(
                     "Executing debounced search for: '{}'",
                     current_search_text_clone
                 );
 
-                match find_emoji_by_name(&current_search_text_clone) {
+                match find_emoji_by_name(
+                    &current_search_text_clone,
+                    &*all_emoji_list_for_timeout.borrow(),
+                ) {
                     Ok(found_emoji_details) => {
                         set_emojis_for_vec_clone_for_timeout.borrow()(found_emoji_details);
                     }

@@ -37,7 +37,6 @@ pub fn create_search_section(
             .widget()
             .and_then(|w| w.downcast_ref::<Entry>().cloned());
         if let Some(entry) = entry {
-            println!("Entry focused!");
             entry.add_css_class("focused"); // Agrega tu clase CSS
         }
     });
@@ -48,14 +47,12 @@ pub fn create_search_section(
         else {
             return;
         };
-        println!("Entry unfocused!");
         entry.remove_css_class("focused");
     });
     search_input.add_controller(focus_controller);
 
     search_input.connect_changed(move |entry| {
         let current_search_text = entry.text().to_string();
-        println!("Search text changed: {}", current_search_text);
 
         if current_search_text.is_empty() {
             search_input_clone.remove_css_class("active");

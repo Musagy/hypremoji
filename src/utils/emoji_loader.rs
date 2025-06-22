@@ -1,9 +1,9 @@
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, time::Instant};
 
 use serde::Deserialize;
 
 use crate::category::Category;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 
 use super::{get_assets_base_path, load_recents};
 
@@ -27,7 +27,7 @@ struct EmojisByCategoryJsonRoot {
 }
 
 #[derive(Debug, Deserialize)]
-struct EmojisListJsonRoot {
+pub struct EmojisListJsonRoot {
     pub emojis: Vec<EmojiDetail>,
 }
 
@@ -81,61 +81,59 @@ pub fn load_emoji_for_category(
 }
 
 const MIN_SEARCH_LENGTH_RETURN: usize = 20;
-const MAX_SEARCH_ITERATIONS: usize = 5;
+const MAX_SEARCH_ITERATIONS: usize = 1;
 
-pub fn find_emoji_by_name(name: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    println!("Searching for emoji by name: {}", name);
+// TODO: actualizar y optimizarlo: ya que es una copia separada, eliminar los elementos del array para que no sea necesario hacer una búsqueda difusa
+pub fn find_emoji_by_name(
+    name: &str,
+    all_emojis_in_memory: &EmojisListJsonRoot,
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let start_time = Instant::now(); // ⏱️ Empezar cronómetro
 
-    let assets_base_path = get_assets_base_path()?;
-    let json_path = assets_base_path.join("list.min.json");
-    let raw = fs::read_to_string(&json_path).map_err(|e| Box::new(e))?;
+    let emoji_list = all_emojis_in_memory.emojis.clone();
 
-    let root: EmojisListJsonRoot = serde_json::from_str(&raw).map_err(|e| Box::new(e))?;
-
-    let mut found: IndexSet<String> = IndexSet::new();
+    let mut found: Vec<String> = Vec::new();
     let mut iterations = 0; // Para limitar la búsqueda difusa
     let mut query = name.to_lowercase();
+    let mut remaining_emojis = emoji_list;
 
     while found.len() < MIN_SEARCH_LENGTH_RETURN && iterations < MAX_SEARCH_ITERATIONS {
-        for emoji in &root.emojis {
-            // let emoji_name = emoji.name.to_lowercase();
-            if emoji.name.to_lowercase().contains(&query) {
-                found.insert(emoji.emoji.clone());
-            }
-        }
-
-        // append_matching_emojis(&root.emojis, &mut found, name);
-        // if found.len() >= MIN_SEARCH_LENGTH_RETURN || name.is_empty() {
-        //     break;
-        // } else {
-        //     if name.len() > 1 {
-        //         name = &name[..name.len() - 1];
-        //     } else {
-        //         println!("No more characters to remove from name: {}", name);
-        //         break;
+        // for emoji in &emoji_list {
+        //     // let emoji_name = emoji.name.to_lowercase();
+        //     if emoji.name.to_lowercase().contains(&query) {
+        //         found.insert(emoji.emoji.clone());
         //     }
         // }
+
+        remaining_emojis.retain(|emoji| {
+            if emoji.name.to_lowercase().contains(&query) {
+                found.push(emoji.emoji.clone());
+                false // elimina de la lista para la siguiente ronda
+            } else {
+                true
+            }
+        });
 
         query.pop(); // acorta la búsqueda si aún no hay suficientes resultados
         iterations += 1; // Incrementa el contador de iteraciones
     }
 
-    let result = found.into_iter().collect();
-    // println!("lista de emojis encontrados: {:?}", result);
+    let duration = start_time.elapsed(); // ⏱️ Calcular tiempo transcurrido
+    println!(
+        "🔍 Search for '{}' took: {:.2}ms (found {} emojis)",
+        name,
+        duration.as_secs_f64() * 1000.0,
+        found.len()
+    );
 
-    Ok(result)
+    Ok(found)
 }
 
-// fn append_matching_emojis(
-//     all_emojis: &[EmojiDetail],
-//     found_emojis: &mut Vec<EmojiDetail>,
-//     name: &str,
-// ) {
-//     for emoji_detail in all_emojis.iter() {
-//         let emoji_name = emoji_detail.name.to_lowercase();
-//         let is_contains = emoji_name.contains(&name.to_lowercase());
-//         if is_contains {
-//             found_emojis.push(emoji_detail.clone());
-//         }
-//     }
-// }
+pub fn load_all_emojis() -> Result<EmojisListJsonRoot, Box<dyn std::error::Error>> {
+    let assets_base_path = get_assets_base_path()?;
+    let json_path = assets_base_path.join("list.min.json");
+    let raw = fs::read_to_string(&json_path).map_err(|e| Box::new(e))?;
+
+    let root: EmojisListJsonRoot = serde_json::from_str(&raw).map_err(|e| Box::new(e))?;
+    Ok(root)
+}
