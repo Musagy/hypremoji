@@ -1,13 +1,14 @@
 use gtk::prelude::*;
 use gtk::Application;
-use gtk::{ApplicationWindow, Box};
+use gtk::Entry;
+use gtk::{ApplicationWindow, Box as BoxGtk};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use utils::find_emoji_by_name;
 
 mod category;
 mod load_styles;
+mod services;
 mod ui;
 mod utils;
 
@@ -18,17 +19,16 @@ use ui::create_emoji_grid_section;
 use ui::create_search_section;
 use utils::load_emoji_for_category;
 
+use crate::services::set_search_service;
+
 fn main() {
     let app = Application::builder()
-        .application_id("dev.musagy.HyprEmoji")
+        .application_id("dev.musagy.hypremoji")
         .build();
 
     app.connect_startup(|_| {
         if let Err(e) = load_css() {
             eprintln!("Error al cargar el CSS: {}", e);
-        }
-        if let Err(w) = find_emoji_by_name("ship") {
-            eprintln!("Error al buscar emojis: {}", w);
         }
     });
     app.connect_activate(build_ui);
@@ -43,12 +43,14 @@ fn build_ui(app: &Application) {
         .default_height(340)
         .build();
 
+    let search_input_rc = Rc::new(RefCell::new(Entry::new()));
+
     let window_ref = Rc::new(RefCell::new(window.clone()));
 
     let side_margin = 12;
     let vertical_margin = 10;
 
-    let main_box = Box::new(gtk::Orientation::Vertical, 0);
+    let main_box = BoxGtk::new(gtk::Orientation::Vertical, 0);
     window.set_child(Some(&main_box));
 
     let all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>> = {
@@ -74,20 +76,25 @@ fn build_ui(app: &Application) {
             window_ref.clone(),
         );
 
-    // Crear sección de búsqueda
-    let search_section = create_search_section(
-        side_margin,
-        display_arbitrary_emojis_fn.clone(),
-        display_emojis_by_category_fn.clone(),
-        selected_category.clone(),
-    );
+    let search_service = set_search_service(display_arbitrary_emojis_fn.clone());
 
     // Crear navegación de categorías
-    let category_nav = create_category_nav(
+    let (category_nav, toggle_nav_class) = create_category_nav(
         side_margin,
         vertical_margin,
         selected_category.clone(),
         display_emojis_by_category_fn.clone(),
+        search_service.cancel_pending_search_fn.clone(),
+    );
+
+    // Crear sección de búsqueda
+    let search_section = create_search_section(
+        side_margin,
+        display_emojis_by_category_fn.clone(),
+        selected_category.clone(),
+        toggle_nav_class.clone(),
+        search_service.initiate_debounced_search_fn.clone(),
+        search_input_rc.clone(),
     );
 
     // Poniendo componentes en la caja principal

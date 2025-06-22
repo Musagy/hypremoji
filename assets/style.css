@@ -40,33 +40,18 @@ entry {
   padding: 0 15px;
 }
 
-entry.active {
+.focused.active {
   /* background-color: var(--primary-col); */
   font-weight: 500;
   box-shadow: 0 3px 7px 0 var(--primary-col-glow), 0 1px 2px -1px var(--primary-col-glow);
   border: 1px solid var(--primary-col);
 
-  box-shadow: inset 0 0 0 1px var(--primary-col-glow);
-}
-entry.active::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 10px var(--primary-col-glow);
 }
 
-/* .btn_search {
-  padding: 0 10px;
-  background: var(--primary-col);
-  color: var(--input-text-col);
-  font-weight: 700;
-  color: white;
-  border-radius: 0 10px 10px 0;
-} */
+.focused.active:focus {
+  box-shadow: inset 0 0 0 1px var(--primary-col-glow);
+
+}
 
 .category_nav button {
   background: var(--btn-list-col);
@@ -79,10 +64,10 @@ entry.active::before {
   background: var(--btn-list-col-hover);
   box-shadow: 0 3px 7px 0 var(--btn-list-col-hover-glow), 0 1px 2px -1px var(--btn-list-col-hover-glow);
 }
-.category_nav button.active, .category_nav button.active:focus {
+.nav_enabled button.active, .nav_enabled button.active:focus {
   background: var(--primary-col);
 }
-.category_nav button.active, .category_nav button.active:hover, .category_nav button.active:focus {
+.nav_enabled button.active, .nav_enabled button.active:hover, .nav_enabled button.active:focus {
   box-shadow: 0 3px 7px 0 var(--primary-col-glow), 0 1px 2px -1px var(--primary-col-glow);
 }
 
