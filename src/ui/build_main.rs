@@ -1,3 +1,4 @@
+use gtk::{gdk::Key, prelude::WidgetExt, EventControllerKey};
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use gtk::{
@@ -79,6 +80,20 @@ pub fn build_ui(app: &Application, chosen_emoji: Rc<RefCell<Option<String>>>) {
     main_box.append(&search_section);
     main_box.append(&category_nav);
     main_box.append(&emoji_grid_widget);
+
+    let key_controller = EventControllerKey::new();
+    let window_clone = window.clone();
+
+    key_controller.connect_key_pressed(move |_controller, key, _keycode, _state| {
+        if key == Key::Escape {
+            window_clone.close();
+            gtk::glib::Propagation::Stop
+        } else {
+            gtk::glib::Propagation::Proceed
+        }
+    });
+
+    window.add_controller(key_controller);
 
     window.present();
 }
