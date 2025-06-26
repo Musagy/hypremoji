@@ -15,7 +15,7 @@ pub struct SearchService {
     pub initiate_debounced_search_fn: Rc<Box<dyn Fn(String) + 'static>>,
 }
 
-pub fn set_search_service(
+pub fn get_search_service(
     set_custom_emojis_display_fn: Rc<RefCell<Box<dyn Fn(Vec<String>) + 'static>>>,
 ) -> SearchService {
     let search_timeout_id_global: Rc<RefCell<Option<SourceId>>> = Rc::new(RefCell::new(None));
@@ -24,8 +24,7 @@ pub fn set_search_service(
 
     let cancel_pending_search_fn: Rc<Box<dyn Fn() + 'static>> = Rc::new(Box::new(move || {
         if let Some(id) = search_timeout_id_for_cancel.borrow_mut().take() {
-            id.remove(); // Cancela el temporizador
-            println!("Pending search cancelled.");
+            id.remove();
         }
     }));
     let all_emoji_list = {
@@ -61,11 +60,6 @@ pub fn set_search_service(
             let all_emoji_list_for_timeout = all_emoji_list_clone.clone();
 
             let id = timeout_add_local(Duration::from_millis(300), move || {
-                println!(
-                    "Executing debounced search for: '{}'",
-                    current_search_text_clone
-                );
-
                 match find_emoji_by_name(
                     &current_search_text_clone,
                     &*all_emoji_list_for_timeout.borrow(),

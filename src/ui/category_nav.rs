@@ -67,7 +67,6 @@ pub fn create_category_nav(
             cancel_pending_search_fn_clone();
             // Actualiza la categoría seleccionada
             *selected_category_clone.borrow_mut() = current_cat_clone.clone();
-            println!("Categoría seleccionada: {}", current_cat_clone.name());
             // Cancela cualquier búsqueda pendiente
 
             // Itera sobre los hijos de la cuadrícula de categorías para actualizar las clases 'active'

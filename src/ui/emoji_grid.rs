@@ -1,12 +1,11 @@
-use std::{cell::RefCell, collections::HashMap, process::Command, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+// use crate::utils::path_utils::get_assets_base_path;
 use crate::{category::Category, utils::add_emoji_to_recents};
-use crate::utils::path_utils::get_assets_base_path;
 use gtk::{
     prelude::{BoxExt, Cast, FlowBoxChildExt, GtkWindowExt, WidgetExt},
     ApplicationWindow, Box as BoxGtk, FlowBox, FlowBoxChild, Label, ScrolledWindow,
 };
-
 
 pub fn refresh_flowbox(flowbox: &FlowBox, emoji_list: Vec<String>) {
     // Limpieza
@@ -58,10 +57,11 @@ pub fn create_emoji_grid_section(
     initial_category: Rc<RefCell<Category>>,
     all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>>,
     window_ref: Rc<RefCell<ApplicationWindow>>,
+    chosen_emoji: Rc<RefCell<Option<String>>>,
 ) -> (
     ScrolledWindow,
-    Rc<RefCell<Box<dyn Fn(Category) + 'static>>>, 
-    Rc<RefCell<Box<dyn Fn(Vec<String>) + 'static>>> 
+    Rc<RefCell<Box<dyn Fn(Category) + 'static>>>,
+    Rc<RefCell<Box<dyn Fn(Vec<String>) + 'static>>>,
 ) {
     let gap = 4;
     let emoji_flowbox = FlowBox::new();
@@ -77,69 +77,44 @@ pub fn create_emoji_grid_section(
     let emoji_flowbox_rc = Rc::new(RefCell::new(emoji_flowbox));
 
     let window_ref_clone = window_ref.clone();
-    emoji_flowbox_rc.borrow().connect_child_activated(move |_, flowbox_child| {
-        if let Some(child_widget) = flowbox_child.child() {
-            if let Ok(label) = child_widget.downcast::<Label>() {
-                let emoji = label.text();
-                println!("Emoji seleccionado: {}", emoji);
+    emoji_flowbox_rc
+        .borrow()
+        .connect_child_activated(move |_, flowbox_child| {
+            if let Some(child_widget) = flowbox_child.child() {
+                if let Ok(label) = child_widget.downcast::<Label>() {
+                    let emoji = label.text();
 
-                let script_path_result = get_assets_base_path()
-                    .map(|p| p.join("insert_emoji.sh"));
+                    add_emoji_to_recents(emoji.to_string()).unwrap_or_else(|e| {
+                        eprintln!("Error al añadir emoji a recientes: {}", e);
+                    });
 
-                match script_path_result {
-                    Ok(script_path) => {
-                        let command_str = format!("{} \"{}\"", script_path.display(), emoji);
+                    chosen_emoji.borrow_mut().replace(emoji.to_string());
 
-                        add_emoji_to_recents(emoji.to_string())
-                        .unwrap_or_else(|e| {
-                            eprintln!("Error al añadir emoji a recientes: {}", e);
-                        });
-
-                        let result = Command::new("bash").arg("-c").arg(&command_str).spawn();
-
-                        match result {
-                            Ok(_) => {
-                                println!("Comando bash iniciado en segundo plano: {}", command_str);
-                            }
-                            Err(e) => {
-                                eprintln!("Fallo al intentar iniciar el comando bash: {}", e);
-                                eprintln!("Asegúrate de que el script '{}' tenga permisos de ejecución: chmod +x {}", script_path.display(), script_path.display());
-                            }
-                        }
-                    },
-                    Err(e) => {
-                        eprintln!("Error al obtener la ruta base de assets: {}", e);
-                    }
+                    window_ref_clone.borrow().close();
                 }
-                
-                window_ref_clone.borrow().close(); // Cierra la ventana al seleccionar un emoji
             }
-        }
-    });
+        });
 
     let all_emojis_by_category_clone_for_set_category_fn = all_emojis_by_category.clone();
     let emoji_flowbox_rc_clone_for_set_category_fn = emoji_flowbox_rc.clone();
 
     // CAMBIO CLAVE: Closure para cambiar la categoría de la FlowBox
     let set_category_emojis_display = Rc::new(RefCell::new(Box::new(move |category: Category| {
-        println!("Cambiando a la categoría: {}", category.name());
         internal_refresh_emoji_display(
             &emoji_flowbox_rc_clone_for_set_category_fn,
             &all_emojis_by_category_clone_for_set_category_fn,
             &category,
         );
-    }) as Box<dyn Fn(Category) + 'static>)); 
+    })
+        as Box<dyn Fn(Category) + 'static>));
 
     let emoji_flowbox_rc_clone_for_set_emojis_fn = emoji_flowbox_rc.clone();
 
     // CAMBIO CLAVE: Closure para mostrar una lista arbitraria de emojis
     let set_custom_emojis_display = Rc::new(RefCell::new(Box::new(move |emojis: Vec<String>| {
-        println!("Mostrando lista arbitraria de emojis ({} items)", emojis.len());
-        internal_display_arbitrary_emojis(
-            &emoji_flowbox_rc_clone_for_set_emojis_fn,
-            emojis,
-        );
-    }) as Box<dyn Fn(Vec<String>) + 'static>)); 
+        internal_display_arbitrary_emojis(&emoji_flowbox_rc_clone_for_set_emojis_fn, emojis);
+    })
+        as Box<dyn Fn(Vec<String>) + 'static>));
 
     let initial_category_name = initial_category.borrow().clone();
     set_category_emojis_display.borrow()(initial_category_name);
@@ -164,5 +139,9 @@ pub fn create_emoji_grid_section(
     scrolled_window.set_hexpand(true);
     scrolled_window.set_margin_end(side_margin / 2); // Margen derecho fuera del scroll
 
-    (scrolled_window, set_category_emojis_display, set_custom_emojis_display)
+    (
+        scrolled_window,
+        set_category_emojis_display,
+        set_custom_emojis_display,
+    )
 }

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, time::Instant};
+use std::{collections::HashMap, fs};
 
 use serde::Deserialize;
 
@@ -38,7 +38,6 @@ pub fn load_emoji_for_category(
     let raw = fs::read_to_string(&json_path).map_err(|e| Box::new(e))?;
 
     let root: EmojisByCategoryJsonRoot = serde_json::from_str(&raw).map_err(|e| Box::new(e))?;
-    // println!("Emojis root loaded successfully: {:?}", root);
 
     let mut categorized_emojis: HashMap<Category, Vec<String>> = HashMap::new();
 
@@ -83,13 +82,10 @@ pub fn load_emoji_for_category(
 const MIN_SEARCH_LENGTH_RETURN: usize = 20;
 const MAX_SEARCH_ITERATIONS: usize = 1;
 
-// TODO: actualizar y optimizarlo: ya que es una copia separada, eliminar los elementos del array para que no sea necesario hacer una búsqueda difusa
 pub fn find_emoji_by_name(
     name: &str,
     all_emojis_in_memory: &EmojisListJsonRoot,
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let start_time = Instant::now(); // ⏱️ Empezar cronómetro
-
     let emoji_list = all_emojis_in_memory.emojis.clone();
 
     let mut found: Vec<String> = Vec::new();
@@ -98,13 +94,6 @@ pub fn find_emoji_by_name(
     let mut remaining_emojis = emoji_list;
 
     while found.len() < MIN_SEARCH_LENGTH_RETURN && iterations < MAX_SEARCH_ITERATIONS {
-        // for emoji in &emoji_list {
-        //     // let emoji_name = emoji.name.to_lowercase();
-        //     if emoji.name.to_lowercase().contains(&query) {
-        //         found.insert(emoji.emoji.clone());
-        //     }
-        // }
-
         remaining_emojis.retain(|emoji| {
             if emoji.name.to_lowercase().contains(&query) {
                 found.push(emoji.emoji.clone());
@@ -117,14 +106,6 @@ pub fn find_emoji_by_name(
         query.pop(); // acorta la búsqueda si aún no hay suficientes resultados
         iterations += 1; // Incrementa el contador de iteraciones
     }
-
-    let duration = start_time.elapsed(); // ⏱️ Calcular tiempo transcurrido
-    println!(
-        "🔍 Search for '{}' took: {:.2}ms (found {} emojis)",
-        name,
-        duration.as_secs_f64() * 1000.0,
-        found.len()
-    );
 
     Ok(found)
 }

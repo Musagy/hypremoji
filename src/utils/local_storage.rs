@@ -52,10 +52,6 @@ fn save_recents(recents: &RecentsEmojis) -> Result<(), Box<dyn std::error::Error
     serde_json::to_writer_pretty(write, recents)
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
 
-    println!(
-        "Recientes guardados correctamente en: {}",
-        file_path.display()
-    );
     Ok(())
 }
 
