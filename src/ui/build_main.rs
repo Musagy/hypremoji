@@ -9,7 +9,7 @@ use gtk::{
 use crate::{
     category::Category,
     services::get_search_service,
-    ui::{create_category_nav, create_emoji_grid_section, create_search_section},
+    ui::{create_category_nav, create_emoji_grid_section, create_top_bar},
     utils::load_emoji_for_category,
 };
 
@@ -31,18 +31,18 @@ pub fn build_ui(app: &Application, chosen_emoji: Rc<RefCell<Option<String>>>) {
     let main_box = BoxGtk::new(gtk::Orientation::Vertical, 0);
     window.set_child(Some(&main_box));
 
-    let all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>> = {
+    let (all_emojis_by_category, first_cat) = {
         match load_emoji_for_category() {
-            Ok(map) => Rc::new(RefCell::new(map)),
+            Ok((map, first_cat)) => (Rc::new(RefCell::new(map)), first_cat),
             Err(e) => {
                 eprintln!("Error al cargar emojis: {}", e);
-                Rc::new(RefCell::new(HashMap::new()))
+                (Rc::new(RefCell::new(HashMap::new())), Category::Recents)
             }
         }
     };
 
     // Crear barra de navegación de categorías
-    let selected_category = Rc::new(RefCell::new(Category::SmileysAndEmotion));
+    let selected_category = Rc::new(RefCell::new(first_cat));
 
     // Crear cuadrícula de emojis
     let (emoji_grid_widget, display_emojis_by_category_fn, display_arbitrary_emojis_fn) =
@@ -67,7 +67,7 @@ pub fn build_ui(app: &Application, chosen_emoji: Rc<RefCell<Option<String>>>) {
     );
 
     // Crear sección de búsqueda
-    let search_section = create_search_section(
+    let search_section = create_top_bar(
         side_margin,
         display_emojis_by_category_fn.clone(),
         selected_category.clone(),

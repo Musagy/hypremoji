@@ -24,12 +24,56 @@ window {
   /* padding: 12px; */
   padding: 12px 0px 0px 0px;
 }
+.generic-btn{
+  background: var(--btn-list-col);
+  /* margin: 0 20px; */
+  padding: 0 5px;
+  border-radius: 10px;
+}
 
-label.title {
-  color: var(--primary-col);
-  margin-bottom: -5px;
-  font-size: 21px;
-  font-weight: 900;
+.generic-btn:hover{
+  background: var(--btn-list-col-hover);
+  animation: boing-ani 2s ease-in-out infinite;
+  border: 1px solid #444;
+}
+
+@keyframes boing-ani {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pin-window-btn:hover {
+  border: 1px solid #444;
+}
+
+/* Animación de click - solo afecta el borde */
+.shot-animation {
+  animation: shot 1s ease-in-out forwards;
+}
+
+/* Mantener el hover incluso durante la animación de click */
+.generic-btn.shot-animation:hover {
+  background: var(--btn-list-col-hover);
+  animation: boing-ani 2s ease-in-out infinite, shot 1s ease-in-out forwards;
+}
+
+@keyframes shot {
+  0% {
+    border: 1px solid var(--primary-col);
+  }
+  50% {
+    border: 1px solid white;
+  }
+  100% {
+    border: 1px solid transparent;
+  }
 }
 
 entry {

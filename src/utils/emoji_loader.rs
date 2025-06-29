@@ -32,7 +32,7 @@ pub struct EmojisListJsonRoot {
 }
 
 pub fn load_emoji_for_category(
-) -> Result<HashMap<Category, Vec<String>>, Box<dyn std::error::Error>> {
+) -> Result<(HashMap<Category, Vec<String>>, Category), Box<dyn std::error::Error>> {
     let assets_base_path = get_assets_base_path()?;
     let json_path = assets_base_path.join("categories.min.json");
     let raw = fs::read_to_string(&json_path).map_err(|e| Box::new(e))?;
@@ -75,8 +75,20 @@ pub fn load_emoji_for_category(
             }
         }
     }
-
-    Ok(categorized_emojis)
+    // si reciente tiene almenos 1, retornara la categoría Recientes, si no, retornará la primera categoría con emojis
+    let initial_category = if categorized_emojis
+        .get(&Category::Recents)
+        .map_or(false, |v| !v.is_empty())
+    {
+        Category::Recents
+    } else {
+        categorized_emojis
+            .keys()
+            .next()
+            .cloned()
+            .unwrap_or(Category::SmileysAndEmotion)
+    };
+    Ok((categorized_emojis, initial_category))
 }
 
 const MIN_SEARCH_LENGTH_RETURN: usize = 20;

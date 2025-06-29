@@ -2,7 +2,8 @@ use std::{process::Command, thread, time::Duration};
 
 use arboard::Clipboard;
 use chrono::Utc;
-use serde::Deserialize;
+
+use crate::utils::get_last_client;
 
 pub struct ClipboardManager {
     focused_window_id: String,
@@ -19,33 +20,8 @@ struct OriginalClipboardContent {
     mime_type: String,
 }
 
-#[derive(Deserialize)]
-struct Client {
-    address: String,
-    #[serde(rename = "focusHistoryID")]
-    focus_history_id: u32,
-}
-
 pub fn get_clipboard_manager() -> ClipboardManager {
-    let output = Command::new("hyprctl")
-        .arg("clients")
-        .arg("-j")
-        .output()
-        .expect("Failed to execute hyprctl command");
-    let json = String::from_utf8_lossy(&output.stdout);
-
-    let clients: Vec<Client> =
-        serde_json::from_str(&json).expect("Failed to parse JSON from hyprctl output");
-
-    // sacar el cliente con el focusHistoryID 0
-    let address = clients
-        .into_iter()
-        .find(|client| client.focus_history_id == 0)
-        .unwrap_or_else(|| Client {
-            address: String::new(),
-            focus_history_id: 0,
-        })
-        .address;
+    let address = get_last_client().address;
 
     ClipboardManager {
         focused_window_id: address,
