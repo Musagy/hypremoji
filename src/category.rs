@@ -1,7 +1,5 @@
-// No se necesitan imports de GTK aquí, solo la definición del enum
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Category {
-    // 'pub' para que sea accesible desde otros módulos
     Recents,
     SmileysAndEmotion,
     AnimalsAndNature,
@@ -15,7 +13,6 @@ pub enum Category {
 
 impl Category {
     pub fn icon(&self) -> &str {
-        // 'pub' para que sea accesible desde otros módulos
         match self {
             Category::Recents => "⏳",
             Category::SmileysAndEmotion => "😀",
@@ -30,7 +27,6 @@ impl Category {
     }
 
     pub fn name(&self) -> &str {
-        // 'pub' para que sea accesible desde otros módulos
         match self {
             Category::Recents => "Recents",
             Category::SmileysAndEmotion => "Smileys & Emotion",
@@ -45,7 +41,7 @@ impl Category {
     }
 }
 
-// Estructura del JSON de emojis
+// Emoji JSON structure
 
 // {
 //   "@version": "16.0.0",
@@ -55,7 +51,7 @@ impl Category {
 //   "@license": "ISC",
 //   "emojis": {
 //     "Smileys & Emotion": {
-//       "subclase": [
+//       "subclass": [
 //         {
 //           "emoji": "😀",
 //           "name": "grinning face",

@@ -11,10 +11,9 @@ use super::{get_assets_base_path, load_recents};
 pub struct EmojiDetail {
     pub emoji: String,
     pub name: String,
-    // pub code: Vec<String>,
 }
 
-// Esta struct mapea el objeto que contiene las subclases dinámicas
+// This struct maps the object containing dynamic subclasses
 #[derive(Debug, Deserialize)]
 struct CategoryWrapper {
     #[serde(flatten)]
@@ -41,11 +40,10 @@ pub fn load_emoji_for_category(
 
     let mut categorized_emojis: HashMap<Category, Vec<String>> = HashMap::new();
 
-    // Inicializar la categoría Recientes vacía
     let recent_data = load_recents()?;
     categorized_emojis.insert(Category::Recents, recent_data.emojis.into());
 
-    // Iterar sobre las categorías principales del JSON
+    // Iterate over the top-level categories from the JSON
     for (json_category_name, dynamic_subclasses_wrapper) in root.emojis {
         for (_subclass_name, emoji_details_vec) in dynamic_subclasses_wrapper.subcategory {
             let target_category = match json_category_name.as_str() {
@@ -60,7 +58,7 @@ pub fn load_emoji_for_category(
                 "Flags" => Some(Category::Flags),
                 _ => {
                     eprintln!(
-                        "Advertencia: Categoría JSON desconocida o no mapeada: {}",
+                        "Warning: Unknown or unmapped JSON category: {}",
                         json_category_name
                     );
                     None
@@ -75,7 +73,8 @@ pub fn load_emoji_for_category(
             }
         }
     }
-    // si reciente tiene almenos 1, retornara la categoría Recientes, si no, retornará la primera categoría con emojis
+
+    // If Recents has at least one emoji, return that category. Otherwise, return the first available category with emojis
     let initial_category = if categorized_emojis
         .get(&Category::Recents)
         .map_or(false, |v| !v.is_empty())
@@ -101,7 +100,7 @@ pub fn find_emoji_by_name(
     let emoji_list = all_emojis_in_memory.emojis.clone();
 
     let mut found: Vec<String> = Vec::new();
-    let mut iterations = 0; // Para limitar la búsqueda difusa
+    let mut iterations = 0;
     let mut query = name.to_lowercase();
     let mut remaining_emojis = emoji_list;
 
@@ -109,14 +108,14 @@ pub fn find_emoji_by_name(
         remaining_emojis.retain(|emoji| {
             if emoji.name.to_lowercase().contains(&query) {
                 found.push(emoji.emoji.clone());
-                false // elimina de la lista para la siguiente ronda
+                false // remove from list for the next round
             } else {
                 true
             }
         });
 
-        query.pop(); // acorta la búsqueda si aún no hay suficientes resultados
-        iterations += 1; // Incrementa el contador de iteraciones
+        query.pop(); // shorten the query if not enough results
+        iterations += 1; // increment iteration counter
     }
 
     Ok(found)

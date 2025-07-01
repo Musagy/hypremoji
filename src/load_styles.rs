@@ -47,15 +47,3 @@ pub fn load_css() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-// guardado por si necesitamos usar el css generico de la carpeta assets
-// pub fn load_css() {
-//     let provider = CssProvider::new();
-//     provider.load_from_string(include_str!("style.css"));
-
-//     gtk::style_context_add_provider_for_display(
-//         &Display::default().expect("Could not connect to a display."),
-//         &provider,
-//         gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-//     );
-// }

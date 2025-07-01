@@ -22,7 +22,6 @@ pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
         .build();
 
     let search_input_rc = Rc::new(RefCell::new(Entry::new()));
-
     let window_ref = Rc::new(RefCell::new(window.clone()));
 
     let side_margin = 12;
@@ -31,20 +30,16 @@ pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
     let main_box = BoxGtk::new(gtk::Orientation::Vertical, 0);
     window.set_child(Some(&main_box));
 
-    let (all_emojis_by_category, first_cat) = {
-        match load_emoji_for_category() {
-            Ok((map, first_cat)) => (Rc::new(RefCell::new(map)), first_cat),
-            Err(e) => {
-                eprintln!("Error al cargar emojis: {}", e);
-                (Rc::new(RefCell::new(HashMap::new())), Category::Recents)
-            }
+    let (all_emojis_by_category, first_cat) = match load_emoji_for_category() {
+        Ok((map, first_cat)) => (Rc::new(RefCell::new(map)), first_cat),
+        Err(e) => {
+            eprintln!("Failed to load emojis: {}", e);
+            (Rc::new(RefCell::new(HashMap::new())), Category::Recents)
         }
     };
 
-    // Crear barra de navegación de categorías
     let selected_category = Rc::new(RefCell::new(first_cat));
 
-    // Crear cuadrícula de emojis
     let (emoji_grid_widget, display_emojis_by_category_fn, display_arbitrary_emojis_fn) =
         create_emoji_grid_section(
             side_margin,
@@ -57,7 +52,6 @@ pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
 
     let search_service = get_search_service(display_arbitrary_emojis_fn.clone());
 
-    // Crear navegación de categorías
     let (category_nav, toggle_nav_class) = create_category_nav(
         side_margin,
         vertical_margin,
@@ -66,7 +60,6 @@ pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
         search_service.cancel_pending_search_fn.clone(),
     );
 
-    // Crear sección de búsqueda
     let search_section = create_top_bar(
         side_margin,
         display_emojis_by_category_fn.clone(),
@@ -76,7 +69,6 @@ pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
         search_input_rc.clone(),
     );
 
-    // Poniendo componentes en la caja principal
     main_box.append(&search_section);
     main_box.append(&category_nav);
     main_box.append(&emoji_grid_widget);
@@ -94,6 +86,5 @@ pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
     });
 
     window.add_controller(key_controller);
-
     window.present();
 }

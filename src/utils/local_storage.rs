@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::VecDeque, // Usamos VecDeque para un control eficiente del "reciente" (añadir/quitar del frente/final)
+    collections::VecDeque, // VecDeque is used for efficient "recents" handling (push/pop from front/back)
     fs::File,
     io::{BufReader, BufWriter},
     path::PathBuf,

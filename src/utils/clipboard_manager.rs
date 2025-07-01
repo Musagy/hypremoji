@@ -24,7 +24,7 @@ impl ClipboardManager {
 
 #[derive(Debug)]
 struct OriginalClipboardContent {
-    content: Option<String>, // Si es texto, aca es solo el texto, si es imagen, aca es el path al archivo temporal
+    content: Option<String>, // If it's text, this is just the content; if it's an image, it's the path to a temp file
     mime_type: String,
 }
 
@@ -41,15 +41,15 @@ pub fn get_clipboard_manager() -> ClipboardManager {
 fn send_emoji(emoji: &str, window_id: &str) {
     let mut clipboard = Clipboard::new().expect("No se pudo acceder al clipboard");
 
-    // 1. Intentar guardar el contenido original del clipboard
+    // 1. Try to save the original clipboard content
     let original_clipboard_content = save_original_clipboard_content();
 
-    // 2. Set emoji en el clipboard
+    // 2. Set the emoji to the clipboard
     clipboard
         .set_text(emoji.to_string())
         .expect("No se pudo poner el emoji en el clipboard");
 
-    // 3. Insertar emoji en la ventana previamente enfocada
+    // 3. Insert the emoji into the previously focused window
     let command_str = format!(
         "hyprctl dispatch sendshortcut CONTROL, V, address:{}",
         window_id
@@ -60,10 +60,10 @@ fn send_emoji(emoji: &str, window_id: &str) {
         .output()
         .expect("Falló el hyprctl command");
 
-    // 4. Esperar un poquito a que Hyprland pegue bien
+    // 4. Wait briefly to ensure Hyprland pastes correctly
     thread::sleep(Duration::from_millis(100));
 
-    // 5. Restaurar el contenido original del clipboard
+    // 5. Restore the original clipboard content
     if original_clipboard_content.content.is_some() {
         set_element_to_clipboard(original_clipboard_content);
     }
@@ -73,7 +73,7 @@ fn save_original_clipboard_content() -> OriginalClipboardContent {
     let types_output = Command::new("wl-paste")
         .arg("--list-types")
         .output()
-        .expect("Fallo al listar tipos");
+        .expect("Failed to list clipboard types");
 
     let stdout = String::from_utf8_lossy(&types_output.stdout);
 
@@ -98,7 +98,7 @@ fn save_original_clipboard_content() -> OriginalClipboardContent {
         "image/png" => ("png", "image/png"),
         "text/plain" => ("txt", "text/plain"),
         _ => {
-            eprintln!("Mime type no soportado: {}", mime_type);
+            eprintln!("Unsupported mime type: {}", mime_type);
             return OriginalClipboardContent {
                 content: None,
                 mime_type: mime_type.to_string(),
@@ -112,7 +112,7 @@ fn save_original_clipboard_content() -> OriginalClipboardContent {
         .arg("-c")
         .arg(&command_str)
         .output()
-        .expect(&format!("Fallo al ejecutar wl-paste para {}", mime_flag));
+        .expect(&format!("Failed to execute wl-paste for {}", mime_flag));
 
     if output.status.success() {
         content = Some(full_path);
@@ -120,7 +120,6 @@ fn save_original_clipboard_content() -> OriginalClipboardContent {
 
     OriginalClipboardContent {
         content: content,
-        // mime_type: mime_type.to_string(),
         mime_type: mime_type.to_string(),
     }
 }
@@ -137,5 +136,5 @@ fn set_element_to_clipboard(occ: OriginalClipboardContent) {
         .arg("-c")
         .arg(command_str)
         .output()
-        .expect("Falló al cargar a clipboard");
+        .expect("Failed to load content to clipboard");
 }

@@ -6,11 +6,10 @@ pub fn get_assets_base_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
 
     let project_root = current_exe_path
         .parent()
-        .ok_or("No se encontró el directorio padre del ejecutable (target/)")?
+        .ok_or("Could not find parent directory of the executable (target/)")?
         .parent()
-        .ok_or("No se encontró el directorio padre del ejecutable (raíz del proyecto)")?;
+        .ok_or("Could not find parent directory of the executable (project root)")?;
 
-    // Une la raíz del proyecto con la carpeta 'assets'
     let assets_path = project_root.join("assets");
 
     if !assets_path.exists() {
@@ -21,8 +20,7 @@ pub fn get_assets_base_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
 }
 
 pub fn get_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut config_dir =
-        dirs::config_dir().ok_or("No se pudo obtener el directorio de configuración")?;
+    let mut config_dir = dirs::config_dir().ok_or("Could not get config directory")?;
 
     config_dir.push("hypremoji");
 
@@ -34,11 +32,11 @@ pub fn get_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
 fn create_file_if_not_exists(file_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
     if let Err(e) = std::fs::create_dir_all(&file_path) {
         eprintln!(
-            "Error al crear el directorio de configuración '{}': {}",
+            "Error creating config directory '{}': {}",
             file_path.display(),
             e
         );
         return Err(Box::new(e));
     };
-    Result::Ok(())
+    Ok(())
 }
