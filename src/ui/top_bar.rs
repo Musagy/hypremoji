@@ -5,10 +5,7 @@ use gtk::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{
-    category::Category,
-    ui::{create_generic_btn, create_save_window_state_button, IconName},
-};
+use crate::{category::Category, ui::create_save_window_state_button};
 
 pub fn create_top_bar(
     global_margin: i32,
@@ -35,10 +32,6 @@ pub fn create_top_bar(
         initiate_debounced_search_fn,
     );
     container.append(&search_input);
-
-    let lock_win_btn = create_generic_btn(IconName::FaLockOpen, "lock-window-btn");
-    lock_win_btn.set_tooltip_text(Some("Don't close the window\nwhen selecting an emoji"));
-    container.append(&lock_win_btn);
 
     let save_window_state_btn = create_save_window_state_button();
     container.append(&save_window_state_btn);

@@ -1,16 +1,24 @@
-use std::{process::Command, thread, time::Duration};
+use std::{cell::RefCell, process::Command, rc::Rc, thread, time::Duration};
 
 use arboard::Clipboard;
 use chrono::Utc;
 
 use crate::utils::get_last_client;
 
+#[derive(Clone)]
 pub struct ClipboardManager {
     focused_window_id: String,
+    chosen_emoji: Rc<RefCell<Option<String>>>,
 }
+
 impl ClipboardManager {
-    pub fn send_emoji_to_focused_window(&self, emoji: &str) {
-        send_emoji(emoji, &self.focused_window_id);
+    pub fn send_emoji_to_focused_window(&self) {
+        if let Some(emoji) = self.chosen_emoji.borrow().as_ref() {
+            send_emoji(emoji, &self.focused_window_id);
+        }
+    }
+    pub fn set_chosen_emoji(&self, emoji: String) {
+        *self.chosen_emoji.borrow_mut() = Some(emoji);
     }
 }
 
@@ -22,9 +30,11 @@ struct OriginalClipboardContent {
 
 pub fn get_clipboard_manager() -> ClipboardManager {
     let address = get_last_client().address;
+    let chosen_emoji: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
 
     ClipboardManager {
         focused_window_id: address,
+        chosen_emoji,
     }
 }
 

@@ -1,7 +1,10 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 // use crate::utils::path_utils::get_assets_base_path;
-use crate::{category::Category, utils::add_emoji_to_recents};
+use crate::{
+    category::Category,
+    utils::{add_emoji_to_recents, clipboard_manager::ClipboardManager},
+};
 use gtk::{
     prelude::{BoxExt, Cast, FlowBoxChildExt, GtkWindowExt, WidgetExt},
     ApplicationWindow, Box as BoxGtk, FlowBox, FlowBoxChild, Label, ScrolledWindow,
@@ -57,7 +60,7 @@ pub fn create_emoji_grid_section(
     initial_category: Rc<RefCell<Category>>,
     all_emojis_by_category: Rc<RefCell<HashMap<Category, Vec<String>>>>,
     window_ref: Rc<RefCell<ApplicationWindow>>,
-    chosen_emoji: Rc<RefCell<Option<String>>>,
+    cb_manager: ClipboardManager,
 ) -> (
     ScrolledWindow,
     Rc<RefCell<Box<dyn Fn(Category) + 'static>>>,
@@ -75,8 +78,9 @@ pub fn create_emoji_grid_section(
     emoji_flowbox.set_activate_on_single_click(true);
 
     let emoji_flowbox_rc = Rc::new(RefCell::new(emoji_flowbox));
-
     let window_ref_clone = window_ref.clone();
+    let cb_manager_clone = cb_manager.clone();
+
     emoji_flowbox_rc
         .borrow()
         .connect_child_activated(move |_, flowbox_child| {
@@ -88,7 +92,7 @@ pub fn create_emoji_grid_section(
                         eprintln!("Error al añadir emoji a recientes: {}", e);
                     });
 
-                    chosen_emoji.borrow_mut().replace(emoji.to_string());
+                    cb_manager_clone.set_chosen_emoji(emoji.to_string());
 
                     window_ref_clone.borrow().close();
                 }
@@ -98,7 +102,6 @@ pub fn create_emoji_grid_section(
     let all_emojis_by_category_clone_for_set_category_fn = all_emojis_by_category.clone();
     let emoji_flowbox_rc_clone_for_set_category_fn = emoji_flowbox_rc.clone();
 
-    // CAMBIO CLAVE: Closure para cambiar la categoría de la FlowBox
     let set_category_emojis_display = Rc::new(RefCell::new(Box::new(move |category: Category| {
         internal_refresh_emoji_display(
             &emoji_flowbox_rc_clone_for_set_category_fn,

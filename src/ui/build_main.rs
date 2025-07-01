@@ -10,10 +10,10 @@ use crate::{
     category::Category,
     services::get_search_service,
     ui::{create_category_nav, create_emoji_grid_section, create_top_bar},
-    utils::load_emoji_for_category,
+    utils::{clipboard_manager::ClipboardManager, load_emoji_for_category},
 };
 
-pub fn build_ui(app: &Application, chosen_emoji: Rc<RefCell<Option<String>>>) {
+pub fn build_ui(app: &Application, cb_manager: ClipboardManager) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title("HyprEmoji")
@@ -52,7 +52,7 @@ pub fn build_ui(app: &Application, chosen_emoji: Rc<RefCell<Option<String>>>) {
             selected_category.clone(),
             all_emojis_by_category.clone(),
             window_ref.clone(),
-            chosen_emoji.clone(),
+            cb_manager.clone(),
         );
 
     let search_service = get_search_service(display_arbitrary_emojis_fn.clone());
