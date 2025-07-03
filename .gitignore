@@ -28,3 +28,9 @@ Thumbs.db
 *.log
 *.tmp
 temp/
+
+# pkgbuild
+/hypremoji
+/src/hypremoji
+/pkg
+hypremoji-*
