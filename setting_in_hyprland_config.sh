@@ -54,8 +54,6 @@ inject_commands_improved() {
             ""
             "# WindowRules for HyprEmojis"
             "windowrulev2 = float, title:^(HyprEmoji)\$"
-            "windowrulev2 = move 1173 124, title:^(HyprEmoji)\$ # optional"
-            "windowrulev2 = size 307 344, title:^(HyprEmoji)\$ # optional"
         )
     fi
     
@@ -163,7 +161,7 @@ main() {
     fi
 
     # Crear respaldo solo si se va a modificar
-    BACKUP_PATH="$(dirname "$CONFIG_FILE")/hyprland-backup-$(date +%Y%m%d-%H%M%S).conf"
+    BACKUP_PATH="$(dirname "$CONFIG_FILE")/hyprland-backup.conf"
     cp "$CONFIG_FILE" "$BACKUP_PATH"
     echo "Backup created at: $BACKUP_PATH"
 
