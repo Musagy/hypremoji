@@ -1,22 +1,31 @@
 use std::{env, path::PathBuf};
 
 pub fn get_assets_base_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let mut current_exe_path = env::current_exe()?;
-    current_exe_path.pop();
+    let exe_path = env::current_exe()?;
 
-    let project_root = current_exe_path
-        .parent()
-        .ok_or("Could not find parent directory of the executable (target/)")?
-        .parent()
-        .ok_or("Could not find parent directory of the executable (project root)")?;
-
-    let assets_path = project_root.join("assets");
-
-    if !assets_path.exists() {
-        return Err(Box::from("FOLDER NOT FOUND: assets folder does not exist"));
+    // If installed system-wide (e.g. from /usr/bin), use system assets path
+    if exe_path.starts_with("/usr") {
+        let system_path = PathBuf::from("/usr/share/hypremoji/assets");
+        if system_path.exists() {
+            return Ok(system_path);
+        } else {
+            return Err(
+                "Installed in /usr, but '/usr/share/hypremoji/assets' was not found.".into(),
+            );
+        }
     }
 
-    Ok(assets_path)
+    // Development mode (e.g. cargo run), look for a nearby assets/ folder
+    let mut current_path = exe_path.clone();
+    for _ in 0..5 {
+        current_path = current_path.parent().unwrap_or(&current_path).to_path_buf();
+        let try_assets = current_path.join("assets");
+        if try_assets.exists() {
+            return Ok(try_assets);
+        }
+    }
+
+    Err("Could not locate the 'assets' folder in any expected path.".into())
 }
 
 pub fn get_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
