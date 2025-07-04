@@ -161,7 +161,7 @@ main() {
     fi
 
     # Crear respaldo solo si se va a modificar
-    BACKUP_PATH="$(dirname "$CONFIG_FILE")/hyprland-backup.conf"
+    BACKUP_PATH="$(dirname "$CONFIG_FILE")/hyprland-backup-$(date +%Y%m%d-%H%M%S).conf"
     cp "$CONFIG_FILE" "$BACKUP_PATH"
     echo "Backup created at: $BACKUP_PATH"
 
