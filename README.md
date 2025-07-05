@@ -1,76 +1,151 @@
+📘 También disponible en [Español 🇪🇸](./README.es.md)
+
 # 😀 HyprEmoji
 
-HyprEmoji es un selector de emojis para el windows manager Hyprland.
+HyprEmoji is a lightweight and fast emoji picker for the **Hyprland** window manager, built with GTK4 and Rust.  
+A sleek way to copy emojis into any window on your system!
 
-<!-- --- -->
+![preview](./banner.png)
+![preview](./screenshot.png)
 
-<!-- ## ✨ Características
+## ✨ Features
 
-* **Navegación por Categorías:** Explora emojis organizados por categorías claras (Smileys & Emotion, Animals & Nature, Food & Drink, etc.).
+- 🔍 **Instant search:** find emojis by typing their name (with debounce included).
+- 📂 **Category navigation:** Smileys, Animals, Food, Objects, and more!
+- 📋 **Clipboard copy with auto Ctrl+V** into the focused window.
+- 🧠 **Recent history:** frequently used emojis are saved automatically.
+- 🎨 **Modern and minimal UI**, customizable through CSS.
+- 💾 **Remembers window size and position** across sessions.
 
-* **Búsqueda Rápida:** (En desarrollo) Encuentra emojis al instante escribiendo su nombre o descripción.
+## 📥 Installation
 
-* **Copia al Portapapeles:** Copia emojis con un solo clic.
+### 📦 From the AUR *(recommended)*
 
-* **Diseño Limpio:** Interfaz de usuario minimalista y optimizada.
+```bash
+paru -S hypremoji-git
+```
+Or...
+```bash
+yay -S hypremoji-git
+```
 
-* **Orden Predecible:** Los emojis y sus subcategorías se muestran en un orden consistente, tal como aparecen en la fuente de datos. -->
+> ✅ Once installed, it will try to auto-configure your `hyprland.conf` with the necessary rules.
 
----
+🎉 Launch with `Super` + `.` and enjoy!
 
-## 🛠️ Instalación y Uso
+## ⚙️ Manual Installation
 
-### Requisitos
 
-Para que HyprEmoji funcione correctamente y los emojis se visualicen a la perfección (especialmente los coloridos y complejos), necesitas tener instalada la fuente **Noto Color Emoji**.
+### 📦 Requirements
 
-* **En Arch Linux:**
+- **Rust + Cargo**
+- **GTK 4**
+- **Hyprland** (with `hyprctl`)
+- **wl-clipboard** (`wl-copy`, `wl-paste`)
+- **Noto Color Emoji (Default)** or similar font 
 
-    ```bash
-    sudo pacman -S noto-fonts-emoji
-    ```
+### 🚀 Steps
 
-* **En Ubuntu/Debian:**
+1. 🎯 Make sure you have **Rust** and **GTK 4** installed.
+2. 📥 Clone the repo:
 
-    ```bash
-    sudo apt install fonts-noto-color-emoji
-    ```
+```bash
+git clone https://github.com/Musagy/HyprEmoji.git
+cd HyprEmoji
+```
+> Using Arch? Just run `makepkg -si` and you’re done.
+>
+> Otherwise, continue with the steps below.
 
-* **Otras distribuciones:** Consulta la documentación de tu gestor de paquetes para instalar `noto-fonts-emoji` o `fonts-noto-color-emoji`.
+3. ⚙️ Add this to your `hyprland.conf`:
 
-### Compilación y Ejecución
+```conf
+# Env for build
+$hypremoji = ~/path/to/project/target/release/hypremoji
 
-Asegúrate de tener [Rust](https://www.rust-lang.org/tools/install) y [GTK 4](https://www.gtk.org/docs/install/) instalados en tu sistema.
+# SUPER + PERIOD to open Hypremoji
+bind = $mainMod, period, exec, $hypremoji
 
-1.  **Clona el repositorio (cuando lo crees):**
+# WindowRules for HyprEmojis
+windowrulev2 = float, title:^(HyprEmoji)$
+```
 
-    ```bash
-    git clone [URL_DE_TU_REPOSITORIO]
-    cd HyprEmoji
-    ```
+4. 🛠️ Build it:
 
-2.  **Compila y ejecuta la aplicación:**
+```bash
+cargo build --release
+```
 
-    ```bash
-    cargo run
-    ```
+5. 🎉 Launch with `Super` + `.` and enjoy!
 
-    Para una versión optimizada (release build):
+### Quick dependency install (Arch Linux):
 
-    ```bash
-    cargo run --release
-    ```
+```bash
+sudo pacman -S gtk4 wl-clipboard noto-fonts-emoji
+```
 
----
+### On Debian/Ubuntu:
 
-## 📄 Licencia
+```bash
+sudo apt install libgtk-4-dev wl-clipboard fonts-noto-color-emoji
+```
 
-Este proyecto está bajo la Licencia ISC. Consulta el archivo `LICENSE` para más detalles.
+>⚠️ You also need a running Hyprland setup for this to work!
 
----
+## 🎨 Customization
 
-## Contribuciones
+You can tweak the theme via:
 
-¡Las contribuciones son bienvenidas! Si tienes ideas, sugerencias o quieres mejorar el código, no dudes en abrir un *issue* o enviar un *pull request*.
+```bash
+~/.config/hypremoji/style.css
+```
 
----
+#### Example:
+
+```css
+:root {
+  --primary-col: #4b60a5;
+  --primary-col-glow: #4b60a5aa;
+  --gray: #444;
+  --bg-col: #0F0F0F;
+  --input-text-col: #FFFFFF;
+  --btn-list-col: #181818;
+  --entry-unfocus: #c41313;
+  --btn-list-col-hover: #272727;
+  --btn-list-col-hover-glow: #27272777;
+  --btn-nav-col: #3E3E3E;
+  --btn-nav-col-hover: #0F0F0F;
+  --emoji-font: "Noto Color Emoji";
+}
+```
+
+> 💬 Want that classic Discord emoji look? Check out [Twemoji](https://github.com/twitter/twemoji), it's the same font they use.
+
+#### How change the 📌 icon color:
+
+Edit the `fill="#xxxxxx"` values in:
+
+```bash
+/usr/share/hypremoji/assets/icons/AiFillPushpin.svg
+```
+
+## 🤝 Contributions
+
+Ideas, bug reports, and pull requests are very welcome!  
+Open an [issue](https://github.com/Musagy/HyprEmoji/issues) or collaborate directly.
+
+## 📄 License
+
+This project is licensed under **ISC**. See [`LICENSE`](./LICENSE) for more details.
+
+## 💸 Support me 
+
+<p align="center"> 
+  <a href="https://www.buymeacoffee.com/musagy" target="_blank" >
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
+  </a>
+</p>
+
+![tengo-hambre](https://i.imgur.com/dT2gV43.png)  
+
+<p align="center"> I'm hungry 🥵 </p>
