@@ -65,7 +65,7 @@ cd HyprEmoji
 $hypremoji = ~/ruta/del/proyecto/target/release/hypremoji
 
 # SUPER + PUNTO para abrir Hypremoji
-bind = $mainMod, period, exec, $hypremoji
+bind = Super, period, exec, $hypremoji
 
 # Reglas de ventana para Hypremoji
 windowrulev2 = float, title:^(HyprEmoji)$

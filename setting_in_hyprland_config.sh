@@ -47,7 +47,7 @@ inject_commands_improved() {
         commands_to_inject=(
             ""
             "# SUPER + PERIOD to open Hypremoji"
-            "bind = \$mainMod, period, exec, hypremoji"
+            "bind = SUPER, period, exec, hypremoji"
         )
     elif [[ " ${command_keys[*]} " =~ " windowrule" ]]; then
         commands_to_inject=(
