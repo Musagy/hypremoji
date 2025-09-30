@@ -19,7 +19,7 @@ pub fn load_css() -> Result<(), Box<dyn std::error::Error>> {
             fs::copy(&default_app_css_path, &user_main_css_path)
                 .map_err(|e| {
                     eprintln!(
-                        "Error al copiar el archivo de estilo por defecto de '{}' a '{}': {}",
+                        "Failed to copy default style file from '{}' to '{}': {}",
                         default_app_css_path.display(),
                         user_main_css_path.display(),
                         e
@@ -35,8 +35,14 @@ pub fn load_css() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     provider.load_from_string(&fs::read_to_string(&user_main_css_path).unwrap_or_else(|_| {
-        eprintln!("Error al leer el archivo de estilo principal desde '{}'. Usando CSS por defecto en memoria.", user_main_css_path.display());
-        String::from("/* Cuerpo de la ventana y color de texto por defecto */ window { background-color: #282A36; color: #F8F8F2; font-family: Inter, sans-serif; }")
+        eprintln!(
+            "Failed to read main style file from '{}'. Using built-in default CSS instead.",
+            user_main_css_path.display()
+        );
+        String::from(
+            "/* Default window body and text color */ \
+             window { background-color: #282A36; color: #F8F8F2; font-family: Inter, sans-serif; }",
+        )
     }));
 
     gtk::style_context_add_provider_for_display(

@@ -19,7 +19,7 @@ fn main() {
 
     app.connect_startup(|_| {
         if let Err(e) = load_css() {
-            eprintln!("Error al cargar el CSS: {}", e);
+            eprintln!("Error loading CSS: {}", e);
         }
     });
 
