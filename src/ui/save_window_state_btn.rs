@@ -81,7 +81,7 @@ fn update_hyprland_config(
     position_rule: &str,
     size_rule: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let config_path = dirs::home_dir().unwrap().join(".config/hypr/hyprland.conf");
+    let config_path = dirs::home_dir().unwrap().join(".config/hypremoji/hypremoji.conf");
 
     let mut lines = vec![];
 

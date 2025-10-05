@@ -1,31 +1,30 @@
 use std::{env, path::PathBuf};
 
-pub fn get_assets_base_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
+pub fn get_base_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
     let exe_path = env::current_exe()?;
 
-    // If installed system-wide (e.g. from /usr/bin), use system assets path
     if exe_path.starts_with("/usr") {
-        let system_path = PathBuf::from("/usr/share/hypremoji/assets");
+        let system_path = PathBuf::from("/usr/share/hypremoji");
         if system_path.exists() {
             return Ok(system_path);
         } else {
-            return Err(
-                "Installed in /usr, but '/usr/share/hypremoji/assets' was not found.".into(),
-            );
+            return Err("Installed in /usr, but '/usr/share/hypremoji' was not found.".into());
         }
     }
 
-    // Development mode (e.g. cargo run), look for a nearby assets/ folder
     let mut current_path = exe_path.clone();
     for _ in 0..5 {
         current_path = current_path.parent().unwrap_or(&current_path).to_path_buf();
-        let try_assets = current_path.join("assets");
-        if try_assets.exists() {
-            return Ok(try_assets);
+        if current_path.join("assets").exists() {
+            return Ok(current_path);
         }
     }
 
-    Err("Could not locate the 'assets' folder in any expected path.".into())
+    Err("Could not locate the Hypremoji project root in any expected path.".into())
+}
+
+pub fn get_assets_base_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    Ok(get_base_path()?.join("assets"))
 }
 
 pub fn get_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
