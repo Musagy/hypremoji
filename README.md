@@ -22,11 +22,11 @@ A sleek way to copy emojis into any window on your system!
 ### 📦 From the AUR *(recommended)*
 
 ```bash
-paru -S hypremoji-git
+paru -S hypremoji
 ```
 Or...
 ```bash
-yay -S hypremoji-git
+yay -S hypremoji
 ```
 
 > ✅ Once installed, it will try to auto-configure your `hyprland.conf` with the necessary rules.
@@ -66,7 +66,7 @@ $hypremoji = ~/path/to/project/target/release/hypremoji
 # SUPER + PERIOD to open Hypremoji
 bind = Super, period, exec, $hypremoji
 
-# WindowRules for HyprEmojis
+# Window rules for HyprEmoji
 windowrulev2 = float, title:^(HyprEmoji)$
 ```
 

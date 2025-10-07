@@ -22,13 +22,13 @@ HyprEmoji es un selector de emojis ligero y rápido para el gestor de ventanas *
 ### 📦 Desde AUR *(recomendado)*
 
 ```bash
-paru -S hypremoji-git
+paru -S hypremoji
 ```
 
 O...
 
 ```bash
-yay -S hypremoji-git
+yay -S hypremoji
 ```
 
 > ✅ Una vez instalado, intentará autoconfigurar tu `hyprland.conf` con las reglas necesarias.
