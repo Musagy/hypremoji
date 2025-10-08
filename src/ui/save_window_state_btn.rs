@@ -60,7 +60,7 @@ fn setup_save_locate_btn(btn: Button) {
         );
         let rule_line_float = "windowrulev2 = float, title:^(HyprEmoji)$".to_string();
 
-        let rule_section_header = "# WindowRules for HyprEmojis";
+        let rule_section_header = "# Window rules for HyprEmoji";
 
         if let Err(e) = update_hyprland_config(
             rule_section_header,
