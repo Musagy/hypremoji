@@ -6,14 +6,14 @@ use gtk::{
 };
 
 use crate::{
-    category::Category, config::paste_config::AppConfig, services::{get_search_service, setup_keyboard_controller}, ui::{create_category_nav, create_emoji_grid_section, create_top_bar, toast::Toast}, utils::{clipboard_manager::ClipboardManager, load_emoji_for_category}
+    category::Category,
+    config::paste_config::AppConfig,
+    services::{get_search_service, setup_keyboard_controller},
+    ui::{create_category_nav, create_emoji_grid_section, create_top_bar, toast::Toast},
+    utils::{clipboard_manager::ClipboardManager, load_emoji_for_category},
 };
 
-pub fn build_ui(
-    app: &Application,
-    cb_manager: ClipboardManager,
-    config: &AppConfig
-) {
+pub fn build_ui(app: &Application, cb_manager: ClipboardManager, config: &AppConfig) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title("HyprEmoji")
@@ -29,18 +29,18 @@ pub fn build_ui(
 
     let main_box = BoxGtk::new(gtk::Orientation::Vertical, 0);
     window.set_child(Some(&main_box));
-    
+
     // //////////////////
 
     let overlay = gtk::Overlay::new();
-    
+
     let main_box = BoxGtk::new(gtk::Orientation::Vertical, 0);
     overlay.set_child(Some(&main_box));
-    
+
     let toast = Toast::new();
     overlay.add_overlay(toast.widget());
-    
-    window.set_child(Some(&overlay)); 
+
+    window.set_child(Some(&overlay));
 
     // /////////////////////////
 
@@ -54,15 +54,19 @@ pub fn build_ui(
 
     let selected_category = Rc::new(RefCell::new(first_cat));
 
-    let (emoji_grid_widget, display_emojis_by_category_fn, display_arbitrary_emojis_fn) =
-        create_emoji_grid_section(
-            side_margin,
-            vertical_margin,
-            selected_category.clone(),
-            all_emojis_by_category.clone(),
-            window_ref.clone(),
-            cb_manager.clone(),
-        );
+    let (
+        emoji_grid_widget,
+        display_emojis_by_category_fn,
+        display_arbitrary_emojis_fn,
+        select_first_emoji_fn,
+    ) = create_emoji_grid_section(
+        side_margin,
+        vertical_margin,
+        selected_category.clone(),
+        all_emojis_by_category.clone(),
+        window_ref.clone(),
+        cb_manager.clone(),
+    );
 
     let search_service = get_search_service(display_arbitrary_emojis_fn.clone());
 
@@ -80,6 +84,7 @@ pub fn build_ui(
         selected_category.clone(),
         toggle_nav_class.clone(),
         search_service.initiate_debounced_search_fn.clone(),
+        select_first_emoji_fn.clone(),
         search_input_rc.clone(),
         config,
         &toast,
