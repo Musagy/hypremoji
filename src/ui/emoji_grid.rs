@@ -127,7 +127,6 @@ pub fn create_emoji_grid_section(
 
             if let Some(label) = label {
                 let emoji = label.text();
-                println!("Selected first emoji: {}", emoji);
                 add_emoji_to_recents(emoji.to_string()).unwrap_or_else(|e| {
                     eprintln!("Failed to add emoji to recents: {}", e);
                 });
