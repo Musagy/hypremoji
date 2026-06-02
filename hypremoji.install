@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ -n "$EBUILD_PHASE" ]]; then
+    RUN_MODE="gentoo"
+else
+    RUN_MODE="arch"
+fi
+
 post_install() {
     echo "==> Setting up hypremoji..."
 
@@ -286,3 +292,11 @@ EOF
     echo "    Note: New styles added to the end of your style.css"
     echo "    Your custom theme remains intact!"
 }
+
+case "$RUN_MODE" in
+    gentoo)
+        post_install
+        ;;
+    arch)
+        ;;
+esac
