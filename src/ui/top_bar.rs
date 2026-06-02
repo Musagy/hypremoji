@@ -5,7 +5,11 @@ use gtk::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{category::Category, config::paste_config::AppConfig, ui::{create_pin_btn, toast::Toast}};
+use crate::{
+    category::Category,
+    config::paste_config::AppConfig,
+    ui::{create_pin_btn, toast::Toast},
+};
 
 pub fn create_top_bar(
     global_margin: i32,
@@ -13,9 +17,10 @@ pub fn create_top_bar(
     selected_category: Rc<RefCell<Category>>,
     toggle_nav_class: Rc<dyn Fn(bool)>,
     initiate_debounced_search_fn: Rc<std::boxed::Box<dyn Fn(std::string::String)>>,
+    select_first_emoji_fn: Rc<RefCell<Box<dyn Fn() + 'static>>>,
     search_input_global: Rc<RefCell<Entry>>,
     config: &AppConfig,
-    toast: &Toast
+    toast: &Toast,
 ) -> BoxGtk {
     let container = BoxGtk::new(gtk::Orientation::Horizontal, 8);
     container.set_margin_start(global_margin);
@@ -31,6 +36,7 @@ pub fn create_top_bar(
         selected_category,
         toggle_nav_class,
         initiate_debounced_search_fn,
+        select_first_emoji_fn,
     );
     container.append(&search_input);
 
@@ -46,6 +52,7 @@ fn setup_search_events(
     selected_category: Rc<RefCell<Category>>,
     toggle_nav_class: Rc<dyn Fn(bool)>,
     initiate_debounced_search_fn: Rc<std::boxed::Box<dyn Fn(std::string::String)>>,
+    select_first_emoji_fn: Rc<RefCell<Box<dyn Fn() + 'static>>>,
 ) {
     let set_category_emojis_display_fn_clone = set_emojis_for_cat.clone();
     let selected_category_clone = selected_category.clone();
@@ -90,5 +97,8 @@ fn setup_search_events(
         } else {
             initiate_debounced_search_fn_clone(current_search_text);
         }
+    });
+    search_input.connect_activate(move |_| {
+        select_first_emoji_fn.borrow()();
     });
 }

@@ -2,7 +2,10 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::{
     category::Category,
-    utils::{add_emoji_to_recents, clipboard_manager::ClipboardManager},
+    utils::{
+        add_emoji_to_recents,
+        clipboard_manager::{self, ClipboardManager},
+    },
 };
 use gtk::{
     prelude::{BoxExt, Cast, FlowBoxChildExt, GtkWindowExt, WidgetExt},
@@ -61,6 +64,7 @@ pub fn create_emoji_grid_section(
     ScrolledWindow,
     Rc<RefCell<Box<dyn Fn(Category) + 'static>>>,
     Rc<RefCell<Box<dyn Fn(Vec<String>) + 'static>>>,
+    Rc<RefCell<Box<dyn Fn() + 'static>>>,
 ) {
     let gap = 4;
     let emoji_flowbox = FlowBox::new();
@@ -110,6 +114,29 @@ pub fn create_emoji_grid_section(
     })
         as Box<dyn Fn(Vec<String>) + 'static>));
 
+    let select_first_emoji = Rc::new(RefCell::new(Box::new({
+        let emoji_flowbox_rc = emoji_flowbox_rc.clone();
+        let cb_manager = cb_manager.clone();
+        let window_ref = window_ref.clone();
+        move || {
+            let first_child = emoji_flowbox_rc.borrow().first_child();
+            let label = first_child
+                .and_then(|child| child.downcast::<FlowBoxChild>().ok())
+                .and_then(|flowbox_child| flowbox_child.child())
+                .and_then(|widget| widget.downcast::<Label>().ok());
+
+            if let Some(label) = label {
+                let emoji = label.text();
+                add_emoji_to_recents(emoji.to_string()).unwrap_or_else(|e| {
+                    eprintln!("Failed to add emoji to recents: {}", e);
+                });
+
+                cb_manager.set_chosen_emoji(emoji.to_string());
+                window_ref.borrow().close();
+            }
+        }
+    }) as Box<dyn Fn() + 'static>));
+
     let initial_category_name = initial_category.borrow().clone();
     set_category_emojis_display.borrow()(initial_category_name);
 
@@ -136,5 +163,6 @@ pub fn create_emoji_grid_section(
         scrolled_window,
         set_category_emojis_display,
         set_custom_emojis_display,
+        select_first_emoji,
     )
 }
