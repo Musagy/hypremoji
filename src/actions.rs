@@ -16,14 +16,14 @@ pub fn handle_command(command: &Commands) {
                 return;
             }
         }
-        Commands::InitInMouse { position } => {
-            println!("Setting mouse position to: {:?}", position);
+        Commands::SetupHyprland => {
+            println!("Wiring hypremoji into your Hyprland config...");
 
-            if let Err(e) = utils::set_pin_at_cursor(position) {
-                eprintln!("Error setting mouse position: {}", e);
+            if let Err(e) = utils::setup_hyprland() {
+                eprintln!("Error setting up Hyprland: {}", e);
                 std::process::exit(1);
             } else {
-                println!("Mouse position set successfully!");
+                println!("Hyprland setup completed successfully!");
                 return;
             }
         }

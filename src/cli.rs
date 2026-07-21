@@ -17,13 +17,9 @@ pub struct Cli {
 pub enum Commands {
     /// Reset configuration to defaults
     Reset,
-    
-    /// Initialize the mouse position for emoji picker
-    InitInMouse {
-        /// Position of the mouse for emoji picker
-        #[arg(value_enum, default_value_t = MousePosition::Down)]
-        position: MousePosition,
-    },
+
+    /// Wire hypremoji into your hyprland.lua or hyprland.conf
+    SetupHyprland,
 }
 
 

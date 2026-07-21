@@ -57,16 +57,17 @@ fn send_emoji(emoji: &str, window_id: &str, window_class: &str, config: &AppConf
     if let Err(e) = emoji_status {
         eprintln!("Failed to copy emoji to clipboard: {}", e);
     }
+    println!("Copying emoji to window: {} class: {}", window_id, window_class);
     
     // 3. Insert the emoji into the previously focused window
     let command_str = if config.needs_shift_for_paste(window_class) {
         format!(
-            "hyprctl dispatch sendshortcut CONTROL SHIFT, V, address:{}",
+            "hyprctl dispatch 'hl.dsp.send_shortcut({{ mods = \"CTRL SHIFT\", key = \"V\", window = \"address:{}\"}})'",
             window_id
         )
     } else {
         format!(
-            "hyprctl dispatch sendshortcut CONTROL, V, address:{}",
+            "hyprctl dispatch 'hl.dsp.send_shortcut({{ mods = \"CTRL\", key = \"V\", window = \"address:{}\"}})'",
             window_id
         )
     };
