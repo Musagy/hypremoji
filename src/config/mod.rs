@@ -1,3 +1,3 @@
-pub mod paste_config;
+pub mod app_config;
 
-pub use paste_config::load_config;
+pub use app_config::load_config;

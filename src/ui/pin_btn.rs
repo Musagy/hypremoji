@@ -7,7 +7,7 @@ use gtk::{
 };
 
 use crate::{
-    config::paste_config::{AppConfig, PinMode}, 
+    config::app_config::{AppConfig, PinMode}, 
     ui::{IconName, create_generic_btn, generic_btn::update_btn_icon, toast::Toast}, 
     utils::change_pin_type
 };

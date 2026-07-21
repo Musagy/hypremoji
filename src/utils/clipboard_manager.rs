@@ -3,7 +3,7 @@ use std::os::unix::fs::OpenOptionsExt;
 
 use chrono::Utc;
 
-use crate::{config::{paste_config::AppConfig}, utils::get_last_client};
+use crate::{config::{app_config::AppConfig}, utils::get_last_client};
 
 #[derive(Clone)]
 pub struct ClipboardManager {

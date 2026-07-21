@@ -1,5 +1,5 @@
 use crate::{
-    config::paste_config::PinMode, utils::{get_current_offset, get_hypremoji_client, write_both_configs},
+    config::app_config::PinMode, utils::{get_current_offset, get_hypremoji_client, write_both_configs},
 };
 
 pub enum PositionExpr {

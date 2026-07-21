@@ -79,30 +79,6 @@ _print_integration_hint() {
     echo "    -> No Hyprland config found yet; wire HyprEmoji in once you set one up."
 }
 
-_migrate_paste_config() {
-    local hypremoji_dir="$1"
-    local old="$hypremoji_dir/paste_config.json"
-    local new="$hypremoji_dir/config.json"
-
-    [[ -f "$old" && ! -f "$new" ]] || return 0
-
-    echo "    -> Migrating paste_config.json to config.json"
-
-    if grep -q '"current_pin_mode"' "$old"; then
-        mv "$old" "$new"
-    elif command -v jq >/dev/null 2>&1; then
-        jq '. + {current_pin_mode: "cursor_down"}' "$old" > "$new"
-        rm "$old"
-    else
-        # Fallback: still fragile against hand-edited/minified JSON,
-        # but jq covers the common case now.
-        sed '$ s/}$/,\n  "current_pin_mode": "cursor_down"\n}/' "$old" > "$new"
-        rm "$old"
-    fi
-
-    [[ -n "$SUDO_USER" ]] && chown "$SUDO_USER:$SUDO_USER" "$new"
-}
-
 _append_style_v1_2() {
     local css="$1"
     [[ -f "$css" ]] || { echo "    -> style.css not found, skipping style update"; return; }
@@ -153,7 +129,6 @@ post_upgrade() {
     hypremoji_dir="$user_home/.config/hypremoji"
 
     echo "==> Upgrading hypremoji: $old_ver -> $new_ver"
-    _migrate_paste_config "$hypremoji_dir"
     _ensure_default_files "$hypremoji_dir"
     _print_integration_hint "$hypr_dir"
     _append_style_v1_2 "$hypremoji_dir/style.css"

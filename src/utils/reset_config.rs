@@ -19,8 +19,12 @@ pub fn reset_config() -> Result<(), Box<dyn std::error::Error>> {
     reset_hypremoji_rule_for_hyprland(&config_dir_path)?;
     println!("Reset Hyprland rule to default.");
 
-    reset_paste_config(&config_dir_path)?;
-    println!("Reset paste config to default.");
+    copy_default_file(
+        &get_base_path()?.join("config.json"),
+        &config_dir_path.join("config.json"),
+        "app config",
+    )?;
+    println!("Reset app config to default.");
 
     println!("Hypremoji configuration has been reset to default.");
     println!(
@@ -54,10 +58,4 @@ pub fn reset_hypremoji_rule_for_hyprland(
     )?;
 
     Ok(())
-}
-
-pub fn reset_paste_config(config_dir_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-    let default_paste_config_path = get_base_path()?.join("paste_config.json");
-    let paste_config_path = config_dir_path.join("paste_config.json");
-    copy_default_file(&default_paste_config_path, &paste_config_path, "paste config")
 }

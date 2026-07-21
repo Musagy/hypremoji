@@ -45,7 +45,7 @@ pub fn backup_dir(dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
 
 /// Copies a default/template asset into place, with a consistent
 /// "not found" / "copy failed" error message. Used by `reset` to
-/// restore CSS, hypremoji.conf/.lua, and paste_config.json.
+/// restore CSS, hypremoji.conf/.lua, and config.json.
 pub fn copy_default_file(
     default_path: &Path,
     target_path: &Path,

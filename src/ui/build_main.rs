@@ -6,7 +6,7 @@ use gtk::{
 };
 
 use crate::{
-    category::Category, config::paste_config::AppConfig, services::{get_search_service, setup_keyboard_controller}, ui::{create_category_nav, create_emoji_grid_section, create_top_bar, toast::Toast}, utils::{clipboard_manager::ClipboardManager, load_emoji_for_category}
+    category::Category, config::app_config::AppConfig, services::{get_search_service, setup_keyboard_controller}, ui::{create_category_nav, create_emoji_grid_section, create_top_bar, toast::Toast}, utils::{clipboard_manager::ClipboardManager, load_emoji_for_category}
 };
 
 pub fn build_ui(

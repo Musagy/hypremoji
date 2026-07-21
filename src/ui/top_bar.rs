@@ -5,7 +5,7 @@ use gtk::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{category::Category, config::paste_config::AppConfig, ui::{create_pin_btn, toast::Toast}};
+use crate::{category::Category, config::app_config::AppConfig, ui::{create_pin_btn, toast::Toast}};
 
 pub fn create_top_bar(
     global_margin: i32,
