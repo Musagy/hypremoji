@@ -1,4 +1,4 @@
-use std::{cell::RefCell, fs::OpenOptions, process::Command, rc::Rc, thread, time::Duration};
+use std::{cell::RefCell, fs::{File, OpenOptions}, process::{Command, Stdio}, rc::Rc, thread, time::Duration};
 use std::os::unix::fs::OpenOptionsExt;
 
 use chrono::Utc;
@@ -158,18 +158,20 @@ fn save_original_clipboard_content() -> OriginalClipboardContent {
 }
 
 fn set_element_to_clipboard(occ: OriginalClipboardContent) {
-    let prefix = if occ.mime_type == "text/plain" {
-        "--type text/plain <"
-    } else {
-        "<"
-    };
-
     let path = occ.content.unwrap_or_default();
-    let command_str = format!("wl-copy {} {}", prefix, path);
-    Command::new("sh")
-        .arg("-c")
-        .arg(command_str)
-        .output()
+    let input = File::open(&path).expect("Failed to open clipboard content");
+    let mut command = Command::new("wl-copy");
+    if occ.mime_type == "text/plain" {
+        command.args(["--type", "text/plain"]);
+    }
+
+    // wl-copy forks a clipboard owner. Capturing its output would wait for
+    // that background process to close the pipes, keeping hypremoji alive.
+    command
+        .stdin(input)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
         .expect("Failed to load content to clipboard");
 
     // Cleanup the temporary file
